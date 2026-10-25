@@ -1,0 +1,216 @@
+{
+    "cosmetic": true,
+    "dependencies": null,
+    "incompatibilities": [
+        {
+            "mod": {
+                "modId": "cayde_devers_1"
+            }
+        }
+    ],
+    "modId": "apasz_swaying_waying",
+    "options": null,
+    "params": [
+        {
+            "defaultIndex": 1,
+            "key": "apasz_swaying_waying_enabled",
+            "name": "Sway mode",
+            "tooltip": "On varies sway strength with speed; Speedless Sway uses full strength from 5 km/h. Sway and curve lean settle below 5 km/h. Curve lean always follows speed.",
+            "uiType": "ComboBox",
+            "values": [
+                "Off",
+                "On",
+                "Speedless Sway"
+            ]
+        },
+        {
+            "defaultIndex": 0,
+            "key": "apasz_swaying_waying_cameras",
+            "name": "Onboard cameras",
+            "tooltip": "One viewpoint per vehicle: Stable, body-following Sway, or Both variants. + Extra also considers passenger seats and an exterior view if needed. Preserves existing cameras. Sway requires vehicle sway. Reload to apply.",
+            "uiType": "ComboBox",
+            "values": [
+                "Disabled",
+                "Stable",
+                "Sway",
+                "Both",
+                "Stable + Extra",
+                "Sway + Extra",
+                "Both + Extra"
+            ]
+        },
+        {
+            "defaultIndex": 3,
+            "key": "apasz_swaying_waying_intensity",
+            "name": "Sway intensity",
+            "tooltip": "Sets the strength of roll, pitch and vertical suspension motion.",
+            "uiType": "Slider",
+            "values": [
+                "0.25x",
+                "0.5x",
+                "0.75x",
+                "1x",
+                "1.25x",
+                "1.5x",
+                "1.75x",
+                "2x"
+            ]
+        },
+        {
+            "defaultIndex": 4,
+            "key": "apasz_swaying_waying_roll_balance",
+            "name": "Roll balance",
+            "tooltip": "Adjusts side-to-side rocking relative to the overall sway intensity. Curve lean is controlled separately.",
+            "uiType": "Slider",
+            "values": [
+                "Off",
+                "0.25x",
+                "0.5x",
+                "0.75x",
+                "1x",
+                "1.25x",
+                "1.5x",
+                "1.75x",
+                "2x"
+            ]
+        },
+        {
+            "defaultIndex": 4,
+            "key": "apasz_swaying_waying_pitch_balance",
+            "name": "Pitch balance",
+            "tooltip": "Adjusts longitudinal rocking relative to the overall sway intensity.",
+            "uiType": "Slider",
+            "values": [
+                "Off",
+                "0.25x",
+                "0.5x",
+                "0.75x",
+                "1x",
+                "1.25x",
+                "1.5x",
+                "1.75x",
+                "2x"
+            ]
+        },
+        {
+            "defaultIndex": 4,
+            "key": "apasz_swaying_waying_heave_balance",
+            "name": "Heave balance",
+            "tooltip": "Adjusts vertical suspension movement relative to the overall sway intensity.",
+            "uiType": "Slider",
+            "values": [
+                "Off",
+                "0.25x",
+                "0.5x",
+                "0.75x",
+                "1x",
+                "1.25x",
+                "1.5x",
+                "1.75x",
+                "2x"
+            ]
+        },
+        {
+            "defaultIndex": 4,
+            "key": "apasz_swaying_waying_curve_lean_intensity",
+            "name": "Curve lean intensity",
+            "tooltip": "Sets outward curve lean independently of sway intensity. Off disables it.",
+            "uiType": "Slider",
+            "values": [
+                "Off",
+                "0.25x",
+                "0.5x",
+                "0.75x",
+                "1x",
+                "1.25x",
+                "1.5x",
+                "1.75x",
+                "2x"
+            ]
+        },
+        {
+            "defaultIndex": 1,
+            "key": "apasz_swaying_waying_curve_sampling_distance",
+            "name": "Curve sampling interval",
+            "tooltip": "How often curvature is sampled. Every Frame gives the closest response; longer distances save CPU but may cause stepping. Suspension smoothing remains continuous.",
+            "uiType": "Slider",
+            "values": [
+                "Frame",
+                "1 m",
+                "3 m",
+                "5 m",
+                "10 m",
+                "15 m"
+            ]
+        },
+        {
+            "defaultIndex": 4,
+            "key": "apasz_swaying_waying_track_influence",
+            "name": "Track influence",
+            "tooltip": "How strongly track speed limits and author-defined track quality affect sway strength and rhythm.",
+            "uiType": "Slider",
+            "values": [
+                "Off",
+                "25%",
+                "50%",
+                "75%",
+                "100%",
+                "125%",
+                "150%"
+            ]
+        },
+        {
+            "defaultIndex": 3,
+            "key": "apasz_swaying_waying_sampling_distance",
+            "name": "Track sampling interval",
+            "tooltip": "Controls track-quality updates. Smaller intervals follow track changes more closely but use more CPU. Curve sampling is controlled separately.",
+            "uiType": "Slider",
+            "values": [
+                "Frame",
+                "1 m",
+                "3 m",
+                "5 m",
+                "10 m",
+                "15 m"
+            ]
+        },
+        {
+            "defaultIndex": 2,
+            "key": "apasz_swaying_waying_vehicle_variation",
+            "name": "Vehicle variation",
+            "tooltip": "Controls automatic comfort and maintenance effects; explicit vehicle-author tags remain fully applied.",
+            "uiType": "Slider",
+            "values": [
+                "Off",
+                "Reduced",
+                "Normal",
+                "Enhanced",
+                "Strong"
+            ]
+        },
+        {
+            "defaultIndex": 0,
+            "key": "apasz_swaying_waying_model_diagnostics",
+            "name": "Detailed model logging",
+            "tooltip": "Logs sway adaptation for each model LOD, including groups and visibility ranges. Enable to diagnose compatibility.",
+            "uiType": "CheckBox",
+            "values": [
+                "Off",
+                "On"
+            ]
+        }
+    ],
+    "postRunScript": {
+        "fileName": ""
+    },
+    "preRunScript": {
+        "fileName": ""
+    },
+    "revision": 60,
+    "runScript": {
+        "fileName": "apasz_swaying_waying::/mod.script@runFn"
+    },
+    "severityAdd": "None",
+    "severityRemove": "None",
+    "visible": true
+}

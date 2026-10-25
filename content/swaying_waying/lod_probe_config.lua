@@ -1,0 +1,3 @@
+local LOD_PROBE_ENABLED = false
+
+return LOD_PROBE_ENABLED
