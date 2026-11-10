@@ -2,7 +2,8 @@
 set -euo pipefail
 
 repository=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
-lua_runner=$(command -v lua)
+lua_runner=$(command -v "${LUA:-lua}")
+unset LUA
 formatter=$(command -v stylua)
 fixture=$(mktemp -d)
 trap 'rm -rf -- "$fixture"' EXIT

@@ -1,5 +1,27 @@
 # Motion performance
 
+## Memory budgets
+
+The Memory usage setting selects Low (2,048 carriage histories, 10 seconds of inactivity), Standard (8,192, 60 seconds), or High (32,768, five minutes), per Lua context. Track histories have the same limits. Expiration uses game time and removes a bounded number of old entries per tick. A clock rewind resets the timed histories. Standard is the default for existing saves.
+
+Recently used entries are protected for one second of game time. When every slot is protected, a miss cannot evict another active carriage. Excess carriages reuse one scratch sample without retaining damping or curvature history, and track-history overflow returns neutral track response without repeating native edge scans. Both conditions are reported once. This avoids the former cyclic-scan cliff where one extra carriage could evict every history on every frame. Increasing the preset raises the retained working-set limit; it does not change motion strengths.
+
+Low also skips optional shared-wave coefficients and uses the equivalent direct evaluator. Irregular-profile coefficients remain cached for retained carriages. Standard and High keep the existing sharing eligibility checks. Memory use depends on active axes, section count, carriage distribution, and the number of Lua contexts; these presets are not whole-process RAM limits.
+
+A Lua 5.2.4 synthetic check filled each preset with single-section carriages, one shared model, and normal-track history. Moving cases warmed all axes and irregular-profile coefficients in 100-car consists. Retained Lua heap above the shared-module baseline, after garbage collection, was:
+
+| Preset | Basic carriage and track history | Warm moving state |
+| --- | --- | --- |
+| Low | 5.6 MiB | 10.8 MiB |
+| Standard | 22.4 MiB | 57.1 MiB |
+| High | 89.8 MiB | 228.4 MiB |
+
+These are per-context synthetic measurements at full capacity, excluding native and game memory. Low uses direct evaluation; Standard and High include shared-wave coefficients.
+
+Camera application uses a scoped transaction that copies writable node/child lists and camera metadata while sharing read-only geometry, animations, and unrelated metadata. Models with inherited writable tables retain full graph isolation. Third-party generators keep their full rollback boundary because their writes are not controlled here.
+
+In a 1,000-part camera fixture, the number of copied tables with Both cameras selected fell from 6,081 to 4,048, about 33%. A standalone Lua 5.2.4 benchmark with 1,000 carriages, 40 callbacks, and medians of three runs kept moving evaluator times within a few percent of the preceding build. The history clock and retention checks added approximately 0.16 ms per update of 1,000 settled carriages on this machine. These measurements do not measure in-game FPS.
+
 ## Settled vehicles below 5 km/h
 
 Below 5 km/h in either direction, a carriage continues its normal suspension response until procedural amplitude, curve lean, and both response velocities have settled. Subsequent callbacks emit the neutral animation times directly, skipping track response, maintenance response, speed-envelope evaluation, and waveform preparation/evaluation. The original transformator still runs.

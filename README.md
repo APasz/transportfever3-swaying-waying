@@ -20,8 +20,13 @@ Roll reuses the game's `::/vehicle/shared/ani/tilt.ani` animation on that separa
 - Track sampling interval: Frame, 1 m, 3 m, 5 m (default), 10 m, or 15 m
 - Automatic vehicle variation from off to strong
 - Detailed model logging: off by default
+- Memory usage: Low, Standard (default), or High
 
 Reload the save to apply setting changes.
+
+**Memory usage** controls carriage-history budgets and retention. Low keeps up to 2,048 histories per Lua context for 10 seconds of inactivity and uses direct waveform evaluation. Standard keeps up to 8,192 for 60 seconds; High keeps up to 32,768 for five minutes. Standard and High can reuse shared waveform calculations. Existing saves default to Standard. The game can create multiple Lua contexts, so these are not limits on the whole game's memory.
+
+Every preset protects histories used within the last second of game time from cyclic eviction. When the active working set exceeds its budget, existing histories remain stable; excess carriages reuse scratch storage without retained suspension damping, and excess track queries use neutral track response. This condition is logged once per context. Increase Memory usage if this occurs. Inactive entries are removed incrementally, and clock rewinds reset history.
 
 **On** scales procedural roll, pitch, and heave with speed, starting at 5% strength at 5 km/h. **Speedless Sway** uses full procedural strength from 5 km/h, while retaining the intensity, axis, track, and vehicle modifiers. Below 5 km/h, all procedural motion and curve lean settle back to neutral in both modes. Motion eases back in at 5 km/h; the same threshold applies in reverse. Motion still advances with distance travelled, so rocking progresses more slowly at low speed. Curve lean remains speed-dependent in both modes. **Off** disables sway and curve lean; Stable onboard cameras can still be added. Existing saved Off/On selections retain their meaning, and saves without a selection default to On.
 
@@ -50,6 +55,8 @@ Multi-group fake-bogie rigs, including locomotive/tender sets and Jacobs-bogie m
 When a rig has one detected body group, separate rigid fittings such as couplers receive the same motion about that body's pivot. Their original placement groups retain authored track steering, while axle branches and skinned articulation connectors stay outside this added motion. Paired couplers on adjoining carriages are not synchronised with one another.
 
 When James' Reusable US Assets is active, turn off its **Enable Railcar Swaying** option. Both mods deliberately preserve custom transformators, so enabling both sway implementations stacks their motion on vehicles that use James' helper.
+
+PRR B6sa/B6sb scripted valve gear is supported through its author's `buildLodTables` API. After sway or onboard cameras change the hierarchy, the adapter rebuilds part indices and node counts while retaining the solver geometry. An unavailable or incompatible builder leaves the model unchanged with a diagnostic.
 
 Real Track Cant is supported in either mod order. Its cant roll composes with body sway, and its absolute-part placement data is refreshed if Swaying Waying modifies the model hierarchy afterwards.
 
@@ -210,6 +217,8 @@ Both commands run strict Teal checks, generate every source in a temporary direc
 
 Development requires Teal 0.24.5, StyLua 2.6.0, Lua 5.2 or newer, Python 3.10 or newer, Bash, and Git. `TL` can select a Teal executable; otherwise the script checks `PATH` and `~/.luarocks/bin/tl`. Set `TPF3_GAME_DIR` when the game is installed outside the default Linux Steam library; the type configuration reads definitions from that installation's `api/tealdef` and `base/tealdef` directories.
 
+Set `LUA=/path/to/lua5.2` to run validation, settings export, and installed-model checks with the game's Lua version. Release checks should include Lua 5.2 execution as well as the syntax and type checks.
+
 The game embeds Lua 5.2. Teal's `5.1` generation target converts bitwise operators to the game's built-in `bit32` functions; Teal has no separate `5.2` target. StyLua explicitly parses generated code as Lua 5.2 so newer syntax fails validation before runtime files are replaced. Hash multiplication uses exact partial products within double precision. Regression fixtures supply the required `bit32` operations when testing under newer standalone Lua versions.
 
 All mod-owned runtime logging uses `swaying_waying/logger`, which creates one logger per Lua context through the shared `_logging` factory. Its API types, Teal source, and Lua runtime are relative symlinks to the sibling `../_logging` module. Development requires that sibling module. Validation follows the links, checks the shared code and generated output, and never overwrites the shared runtime; stale shared Lua must be regenerated in `_logging`. Release packages must include the dereferenced `content/swaying_waying/logging.lua` under this mod's namespace, so players need no separate logging mod.
@@ -231,12 +240,13 @@ Use `--game-dir` or `TPF3_GAME_DIR` to select the installation. Supply a `.mdl` 
 | `settings` | Typed setting definitions, defaults, UI values, and validation. |
 | `model_policy` | Author options, LOD range, vehicle profile, placement data, and geometry inference. |
 | `model_analysis` | Per-LOD name, parent, axle, and subtree indices; section detection. |
-| `model_modifier` / `model_nodes` | Plan and apply motion wrappers using those indices. |
+| `model_modifier` | Coordinate model preparation, compatibility, cameras, and runtime configuration. |
+| `model_injection` / `model_nodes` | Select and apply motion wrappers using the hierarchy indices. |
 | `model_references` | Collect and validate known game attachments; keep unknown mod metadata opaque. |
 | `model_cameras` / `camera_compatibility` | Select and anchor onboard views; integrate optional Auto Passenger Cameras data. |
 | `model_compatibility` / `origin_loader` | Optional weather/cant adapters and authored callback loading. |
 | `model_transaction` / `model_reporting` | Prepare an isolated draft, commit a complete model, and report the result. |
-| `runtime_config` / `runtime_state` | Validate and compile shared model settings; retain separate carriage samples. |
+| `runtime_config` / `runtime_state` / `memory_policy` | Compile shared model settings; retain carriage history within the selected memory budget. |
 | `motion` / `motion_response` / `curve_response` / `track_response` / `vehicle_response` | Motion maths, time damping, and curvature/track/vehicle response. |
 | `bounded_cache` / `animation_bindings` / `values` | Shared cache, animation names, and validation helpers. |
 
@@ -246,7 +256,7 @@ Adaptation operates on an isolated copy during loading and commits only after ev
 
 Known vanilla transformators use direct wrappers. Custom transformators must resolve every declared callback before adaptation; unresolved callbacks cause the whole model to be skipped and logged. An occupied private runtime namespace also leaves the model unchanged. Real Track Cant and the existing Realistic Environment Pro integration remain behind explicit adapters. Opaque metadata is never searched for arbitrary strings to rewrite.
 
-Runtime configuration, section geometry, and animation names are shared per model and revision. Compiled model identity retains the resource name and revision as scalar values, so reusing an input parameter table cannot reuse another model's carriage state. Each carriage owns one mutable motion sample and its damping clock and velocities, updated in place. Damping, the speed envelope, and enabled curve lean are evaluated once per carriage before its sections; active damping shares one exponential between both responses, and settled or paused responses skip it. Model, carriage, track, geometry, and waveform caches use bounded LRU eviction rather than clearing every entry at capacity. Invalid motion configuration is cached and reported once per revision, independently of authored callbacks.
+Runtime configuration, section geometry, and animation names are shared per model and revision. Compiled model identity retains the resource name and revision as scalar values, so reusing an input parameter table cannot reuse another model's carriage state. Each carriage owns one mutable motion sample and its damping clock and velocities, updated in place. Damping, the speed envelope, and enabled curve lean are evaluated once per carriage before its sections; active damping shares one exponential between both responses, and settled or paused responses skip it. Model, geometry, and waveform caches use bounded LRU eviction. Carriage and track histories also protect recent entries from cyclic eviction and expire inactive entries according to the selected memory preset. Invalid motion configuration is cached and reported once per revision, independently of authored callbacks.
 
 Once a stopped carriage settles, it emits neutral motion directly and skips response and waveform work while keeping its damping clock current for restart. Consists with at least 20 carriages and enabled pitch/heave can share exact distance-dependent sine/cosine pairs per profile and Lua context; fixed phase and section coefficients are reused while live spectrum weights are applied during evaluation. Sharing activates after observed coordinate reuse. Smaller consists and roll-only motion retain direct evaluation. Both paths preserve the same motion, without assuming worker affinity or retaining waveform history. See [Motion performance](docs/performance.md) for the benchmark and its limits.
 

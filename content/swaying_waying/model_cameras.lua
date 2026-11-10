@@ -109,6 +109,42 @@ local function modelRoots(model)
 	return result
 end
 
+local function cameraScope(model)
+	local scope = {}
+	local plain = true
+	local function include(value)
+		if type(value) == "table" then
+			scope[value] = true
+			plain = plain and getmetatable(value) == nil
+		end
+	end
+	local function branch(node)
+		if scope[node] then
+			return
+		end
+		include(node)
+		include(node.children)
+		for _, child in ipairs(node.children or {}) do
+			branch(child)
+		end
+	end
+	include(model)
+	include(model.lods)
+	for _, lod in ipairs(model.lods) do
+		include(lod)
+		branch(lod.node)
+	end
+	local metadata = model.metadata
+	include(metadata)
+	include(metadata.metadata)
+	include(metadata.cameraConfig)
+	if type(metadata.cameraConfig) == "table" then
+		include((metadata.cameraConfig).positions)
+	end
+
+	return plain and scope or nil
+end
+
 local function modelIndices(model, motion, placements)
 	local result = {}
 	for _, root in ipairs(modelRoots(model)) do
@@ -692,6 +728,7 @@ local function apply(fileName, model, plan, attachments, wrappers)
 end
 
 local module = {
+	scope = cameraScope,
 	positions = cameraPositions,
 	validate = validate,
 	capture = capture,

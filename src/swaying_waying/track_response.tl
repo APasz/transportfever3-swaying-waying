@@ -7,6 +7,7 @@ local constants = ug_require(
 local logger = ug_require(
     "apasz_swaying_waying::/swaying_waying/logger.lua"
 ) as SwayingWaying.Logger
+local memory = ug_require("apasz_swaying_waying::/swaying_waying/memory_policy.lua") as SwayingWaying.MemoryPolicy
 
 local record TrackState
     purchaseTime: integer
@@ -48,6 +49,7 @@ local MAX_TRACK_INFLUENCE = constants.MAX_TRACK_INFLUENCE
 -- Transformator scripts can run in multiple isolated Lua contexts. Each context
 -- keeps a bounded hint cache; cold structure loads still use adjacent-edge data.
 local trackStates: SwayingWaying.BoundedCache<integer, TrackState> = cache.create(constants.MAX_RUNTIME_VEHICLE_STATES)
+local selectedMemory: SwayingWaying.MemoryUsage | nil = nil
 
 local function smoothStep(value: number): number
     local ratio = clamp(value, 0.0, 1.0)
@@ -317,10 +319,14 @@ end
 local function stateFor(
     carriageEntity: integer,
     purchaseTime: integer
-): TrackState
+): TrackState | nil
     local state = cache.get(trackStates, carriageEntity)
     if state ~= nil and (state as TrackState).purchaseTime == purchaseTime then
         return state as TrackState
+    end
+    if state == nil and not cache.canPut(trackStates) then
+        logger.warnOnce("track-memory-capacity", "Track history budget reached; excess carriages use neutral track response")
+        return nil
     end
     local created = newTrackState(purchaseTime)
     cache.put(trackStates, carriageEntity, created)
@@ -419,11 +425,26 @@ local function response(
     carriageEntity: integer,
     purchaseTime: integer,
     distance: number,
-    samplingDistance: number
+    samplingDistance: number,
+    time: integer | nil,
+    memoryUsage: SwayingWaying.MemoryUsage | nil
 ): number, number
     assert(distance > -math.huge and distance < math.huge, "Invalid track sampling distance")
     assert(samplingDistance >= 0.0 and samplingDistance < math.huge, "Invalid track sampling interval")
-    local state = stateFor(carriageEntity, purchaseTime)
+    if time ~= nil then
+        local mode: SwayingWaying.MemoryUsage = memoryUsage or "Standard"
+        if mode ~= selectedMemory then
+            local budget = memory.budget(mode)
+            cache.configure(trackStates, budget.carriages, budget.retention)
+            selectedMemory = mode
+        end
+        cache.advance(trackStates, time as integer)
+    end
+    local candidate = stateFor(carriageEntity, purchaseTime)
+    if candidate == nil then
+        return 1.0, NEUTRAL_SHORT_WEIGHT
+    end
+    local state = candidate as TrackState
     if not state.hasTarget or math.abs(distance - state.sampleDistance) >= samplingDistance then
         state.targetFactor = targetFactor(landVehicleApi, state, distance)
         state.targetShortWeight = shortWeightForFactor(state.targetFactor)
@@ -462,7 +483,9 @@ local function factor(
         carriageEntity,
         purchaseTime,
         distance,
-        samplingDistance
+        samplingDistance,
+        nil,
+        nil
     )
     return outputFactor
 end

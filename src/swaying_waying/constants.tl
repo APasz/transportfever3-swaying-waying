@@ -42,6 +42,7 @@ local constants: SwayingWaying.Constants = {
     SAMPLING_DISTANCE_PARAM_KEY = "apasz_swaying_waying_sampling_distance",
     VEHICLE_VARIATION_PARAM_KEY = "apasz_swaying_waying_vehicle_variation",
     MODEL_DIAGNOSTICS_PARAM_KEY = "apasz_swaying_waying_model_diagnostics",
+    MEMORY_USAGE_PARAM_KEY = "apasz_swaying_waying_memory_usage",
     AUTHOR_METADATA_KEY = "swayingWaying",
     TRACK_ROUGH_TAG = "swaying_waying_rough",
     TRACK_SMOOTH_TAG = "swaying_waying_smooth",

@@ -15,7 +15,7 @@ end
 return motion
 LUA
 
-if lua scripts/benchmark_motion.lua 1 "$fixture/offset_motion.lua" > "$fixture/output" 2>&1; then
+if "${LUA:-lua}" scripts/benchmark_motion.lua 1 "$fixture/offset_motion.lua" > "$fixture/output" 2>&1; then
     echo 'Benchmark accepted equal and opposite roll/heave errors' >&2
     exit 1
 fi

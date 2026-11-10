@@ -35,6 +35,112 @@ local snowPowderChecked = false
 
 local snowPowderAdapter = nil
 
+local PRR_NAMESPACE = "PRR_B6sab_1::/"
+
+local function indexedNodes(root)
+	local result = {}
+	local function visit(node)
+		result[#result + 1] = node
+		for _, child in ipairs(node.children or {}) do
+			visit(child)
+		end
+	end
+	visit(root)
+	return result
+end
+
+local function valveGear(fileName, model)
+	if fileName:sub(1, #PRR_NAMESPACE) ~= PRR_NAMESPACE then
+		return nil
+	end
+	local metadata = dynamicTable(model.metadata)
+	local config = metadata ~= nil and dynamicTable((metadata).transformatorConfig) or nil
+	local params = config ~= nil and dynamicTable((config).params) or nil
+	if params == nil then
+		return nil
+	end
+	local value = (params).valveGear
+	local gear = dynamicTable(value)
+	assert(value == nil or gear ~= nil, "Invalid PRR valve-gear configuration")
+	return gear
+end
+
+local function validateLodCache(model, value)
+	local lods = model.lods
+	local cached = dynamicArray(value)
+	assert(cached ~= nil and validation.arraySize(cached) ~= nil, "Invalid PRR valve-gear LOD cache")
+	for index, entryValue in ipairs(cached) do
+		local entry = dynamicTable(entryValue)
+		assert(entry ~= nil, "Invalid PRR valve-gear LOD entry")
+		assert(lods[index] ~= nil, "PRR valve-gear cache references a missing LOD")
+		local tree = indexedNodes(lods[index].node)
+		assert((entry).count == #tree, "PRR valve-gear node count does not match the prepared hierarchy")
+		local parts = dynamicTable((entry).parts)
+		assert(parts ~= nil, "Invalid PRR valve-gear part cache")
+		for key, partValue in pairs(parts) do
+			local part = dynamicTable(partValue)
+			assert(type(key) == "string" and part ~= nil, "Invalid PRR valve-gear part cache")
+			local order = (part).index
+			assert(
+				validation.nonnegative(order) and order % 1 == 0 and tree[order + 1] ~= nil,
+				"Invalid PRR valve-gear node index"
+			)
+		end
+	end
+	return cached
+end
+
+local function validateIndexedParts(fileName, model)
+	local gear = valveGear(fileName, model)
+	if gear ~= nil then
+		nodes.validate(model)
+		validateLodCache(model, (gear).lods)
+	end
+end
+
+local function captureIndexedParts(fileName, model)
+	local gear = valveGear(fileName, model)
+	if gear == nil then
+		return nil
+	end
+	nodes.validate(model)
+	local cached = validateLodCache(model, (gear).lods)
+	local names = {}
+	local targets = {}
+	for index, entry in ipairs(cached) do
+		local tree = indexedNodes((model.lods)[index].node)
+		targets[index] = {}
+		for key, part in pairs(entry.parts) do
+			local target = tree[part.index + 1]
+			local name = target.name
+			assert(name ~= nil and name ~= "", "PRR valve-gear parts need named anchors")
+			assert(names[key] == nil or names[key] == name, "PRR valve-gear part names differ across LODs")
+			names[key] = name
+			targets[index][key] = target
+		end
+	end
+	local builder = ug_require(PRR_NAMESPACE .. "scripts/valvegear_util.lua")
+	assert(
+		type(builder) == "table" and type(builder.buildLodTables) == "function",
+		"PRR valve-gear hierarchy adapter is unavailable"
+	)
+	return function(prepared)
+		local refreshed = validateLodCache(prepared, builder.buildLodTables(prepared.lods, names, #cached))
+		assert(#refreshed == #cached, "PRR valve-gear adapter changed the active LOD count")
+		for index, original in ipairs(cached) do
+			local tree = indexedNodes((prepared.lods)[index].node)
+			for key in pairs(original.parts) do
+				local part = refreshed[index].parts[key]
+				assert(
+					part ~= nil and tree[part.index + 1] == targets[index][key],
+					"PRR valve-gear adapter lost or changed a scripted part: " .. key
+				)
+			end
+		end
+		(valveGear(fileName, prepared)).lods = refreshed
+	end
+end
+
 local function isModEnabled(modId)
 	return enabledMods[modId] == true
 end
@@ -221,6 +327,8 @@ local function refreshRealTrackCantRest(fileName, model, originalTransformator, 
 end
 
 local module = {
+	capture = captureIndexedParts,
+	validate = validateIndexedParts,
 	configure = configure,
 	isModEnabled = isModEnabled,
 	wrapperFor = wrapperFor,

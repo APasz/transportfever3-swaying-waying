@@ -12,6 +12,7 @@ local sampling: {number} = { 0, 1, 3, constants.DEFAULT_SAMPLE_DISTANCE, 10, 15 
 local samplingLabels: {string} = { "Frame", "1 m", "3 m", "5 m", "10 m", "15 m" }
 local swayModes: {SwayingWaying.SwayMode} = { "Off", "On", "Speedless Sway" }
 local cameraModes: {SwayingWaying.CameraMode} = { "Disabled", "Stable", "Sway", "Both" }
+local memoryModes: {SwayingWaying.MemoryUsage} = { "Low", "Standard", "High" }
 
 local function choiceValues(labels: {string}): {number}
     local result: {number} = {}
@@ -163,6 +164,13 @@ local definitions: {SwayingWaying.SettingDefinition} = {
         values = toggle,
         labels = { "Off", "On" },
     },
+    {
+        id = "memoryUsage", key = constants.MEMORY_USAGE_PARAM_KEY,
+        name = "Memory usage",
+        tooltip = "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.",
+        uiType = "ComboBox", defaultIndex = 2,
+        values = choiceValues(memoryModes as {string}), labels = memoryModes as {string},
+    },
 }
 local byId: {SwayingWaying.SettingId: SwayingWaying.SettingDefinition} = {}
 for _, definition in ipairs(definitions) do
@@ -194,12 +202,18 @@ local function swayMode(params: ModParams | nil): SwayingWaying.SwayMode
 end
 
 local function resolveSettings(config: SwayingWaying.Config): SwayingWaying.Config
+    local memoryUsage = config.memoryUsage
+    if memoryUsage == nil then
+        memoryUsage = "Standard"
+    end
+    assert(memoryUsage == "Low" or memoryUsage == "Standard" or memoryUsage == "High", "Invalid memory usage preset")
     local speedDependent = config.speedDependent
     if speedDependent == nil then
         speedDependent = swayMode(nil) ~= "Speedless Sway"
     end
     assert(type(speedDependent) == "boolean", "Invalid sway speed-dependence setting")
     return {
+        memoryUsage = memoryUsage,
         speedDependent = speedDependent,
         intensity = scale(config.intensity, "intensity"),
         rollBalance = scale(config.rollBalance, "rollBalance"),
@@ -229,6 +243,7 @@ local function read(allModParams: AllModParams | nil): boolean, SwayingWaying.Co
     local cameras = cameraChoices[selected(params, "cameras") as integer]
     local mode = swayMode(params)
     return mode ~= "Off", {
+        memoryUsage = memoryModes[selected(params, "memoryUsage") as integer],
         speedDependent = mode ~= "Speedless Sway",
         intensity = selected(params, "intensity"),
         rollBalance = selected(params, "rollBalance"),

@@ -17,9 +17,13 @@ local function mapped(value, tables)
 	return value
 end
 
-local function discover(value, copies, originals, pending)
+local function discover(value, copies, originals, pending, scope, opaque)
 	if type(value) == "table" and copies[value] == nil then
 		local source = value
+		if scope ~= nil and not (scope)[source] then
+			opaque[source] = true
+			return
+		end
 		local copy = {}
 		copies[source] = copy
 		originals[copy] = source
@@ -33,19 +37,20 @@ local function authorMetatable(source)
 	return meta
 end
 
-local function draftGraph(root)
+local function draftGraph(root, scope)
 	local copies = { [root] = {} }
 	local originals = { [copies[root]] = root }
 	local pending = { root }
+	local opaque = {}
 	local index = 1
 	while index <= #pending do
 		local source = pending[index]
 		index = index + 1
 		for key, value in next, source do
-			discover(key, copies, originals, pending)
-			discover(value, copies, originals, pending)
+			discover(key, copies, originals, pending, scope, opaque)
+			discover(value, copies, originals, pending, scope, opaque)
 		end
-		discover(authorMetatable(source), copies, originals, pending)
+		discover(authorMetatable(source), copies, originals, pending, scope, opaque)
 	end
 	for _, source in ipairs(pending) do
 		local copy = copies[source]
@@ -54,18 +59,23 @@ local function draftGraph(root)
 		end
 		local authorMeta = authorMetatable(source)
 		if authorMeta ~= nil then
+			assert(scope == nil, "Scoped model preparation requires plain tables")
 			setmetatable(copy, copies[authorMeta])
 		end
 	end
-	return copies[root], originals
+	return copies[root], originals, opaque
 end
 
-local function resolveNewTables(root, originals)
+local function resolveNewTables(originals, opaque)
 	local seen = {}
-	local pending = { root }
+	local pending = {}
+
+	for draft in pairs(originals) do
+		pending[#pending + 1] = draft
+	end
 	while #pending > 0 do
 		local current = table.remove(pending)
-		if not seen[current] then
+		if not seen[current] and not opaque[current] then
 			seen[current] = true
 			local keys = {}
 			for key in next, current do
@@ -98,8 +108,15 @@ local function resolveNewTables(root, originals)
 	end
 end
 
-local function commit(root, originals)
-	resolveNewTables(root, originals)
+local function commit(originals, opaque)
+	resolveNewTables(originals, opaque)
+
+	for draft, original in pairs(originals) do
+		local meta = authorMetatable(draft)
+		if meta ~= nil or getmetatable(original) ~= nil then
+			setmetatable(original, mapped(meta, originals))
+		end
+	end
 	for draft, original in pairs(originals) do
 		local removed = {}
 		for key in next, original do
@@ -114,12 +131,12 @@ local function commit(root, originals)
 	end
 end
 
-local function run(model, prepare)
+local function run(model, prepare, scope)
 	assert(type(model) == "table", "Model preparation requires a table")
-	local draft, originals = draftGraph(model)
+	local draft, originals, opaque = draftGraph(model, scope)
 
 	if prepare(draft) then
-		commit(draft, originals)
+		commit(originals, opaque)
 	end
 	return model
 end

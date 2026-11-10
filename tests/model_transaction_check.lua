@@ -48,6 +48,17 @@ transaction.run(model, function(draft)
 end)
 assertions.equal(model[tableKey], child, "table keys retain their identities")
 assertions.equal(model.added.reference, child, "new tables reference committed author nodes")
+local detached = { value = 1 }
+model.detached = detached
+transaction.run(model, function(draft)
+	local removed = draft.detached
+	draft.detached = nil
+	removed.added = { owner = draft, alias = draft.alias }
+	return true
+end)
+assertions.equal(model.detached, nil, "detached author tables remain detached")
+assertions.equal(detached.added.owner, model, "detached author tables cannot retain the draft graph")
+assertions.equal(detached.added.alias, child, "new references in detached tables resolve to author identities")
 
 local inherited = { metadata = { value = 1 } }
 local authorMeta = { __index = inherited }
@@ -96,4 +107,57 @@ for _ in pairs(model.keyed) do
 	keyCount = keyCount + 1
 end
 assertions.equal(keyCount, 2, "committed tables retain no draft keys")
+local replacementMeta = { __index = { marker = "replacement" } }
+local changingMeta = setmetatable(
+	{ replacement = replacementMeta, alias = child },
+	{ __index = { marker = "original" } }
+)
+transaction.run(changingMeta, function(draft)
+	setmetatable(draft, draft.replacement)
+	return true
+end)
+assertions.equal(getmetatable(changingMeta), replacementMeta, "metatable replacements resolve to author identities")
+assertions.equal(changingMeta.marker, "replacement", "commits retain changed inherited behaviour")
+transaction.run(changingMeta, function(draft)
+	setmetatable(draft, nil)
+	draft.replacement.__metatable = "protected after removal"
+	return true
+end)
+assertions.equal(getmetatable(changingMeta), nil, "metatable removals are committed")
+assertions.equal(replacementMeta.__metatable, "protected after removal", "metatable contents commit with removal")
+transaction.run(changingMeta, function(draft)
+	setmetatable(draft, { __index = { alias = draft.alias } })
+	return true
+end)
+assertions.equal(getmetatable(changingMeta).__index.alias, child, "new metatables cannot retain draft references")
+local cameras = harness.require("apasz_swaying_waying::/swaying_waying/model_cameras.lua")
+local fixture = dofile("tests/support/model_fixture.lua")
+local cameraModel = fixture.railModel()
+local scope = assert(cameras.scope(cameraModel))
+local root = cameraModel.lods[1].node
+assert(scope[root] and scope[root.children], "camera transactions copy writable hierarchy links")
+assert(not scope[root.transf] and not scope[root.materials], "camera transactions share read-only geometry")
+transaction.run(cameraModel, function(draft)
+	assert(draft.lods[1].node.transf == root.transf, "scoped drafts avoid copying immutable transforms")
+	draft.lods[1].node.children[#draft.lods[1].node.children + 1] = { name = "camera" }
+	draft.metadata.cameraConfig.positions[#draft.metadata.cameraConfig.positions + 1] = { group = "camera" }
+	return false
+end, scope)
+assert(
+	#root.children == 1 and #cameraModel.metadata.cameraConfig.positions == 1,
+	"scoped rejection rolls back camera writes"
+)
+transaction.run(cameraModel, function(draft)
+	local anchor = { name = "camera" }
+	draft.lods[1].node.children[#draft.lods[1].node.children + 1] = anchor
+	draft.metadata.cameraConfig.positions[#draft.metadata.cameraConfig.positions + 1] = { group = anchor.name }
+	return true
+end, scope)
+assert(root.children[2].name == "camera", "scoped commits preserve hierarchy identity")
+assert(cameraModel.metadata.cameraConfig.positions[2].group == "camera", "scoped camera metadata commits together")
+local inheritedRoot = setmetatable(root, { __index = {} })
+assert(
+	cameras.scope(cameraModel) == nil and inheritedRoot == root,
+	"inherited hierarchy tables use full graph isolation"
+)
 print("Model transaction checks passed")

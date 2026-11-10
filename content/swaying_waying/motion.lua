@@ -191,6 +191,11 @@ end
 
 local function prepareWaves(state, sharedBaseDistance, carriageLag)
 	local sample = state.sample
+	if state.model.sharedWaves == false then
+		sample.waves = nil
+		state.waves, state.waveBasis = nil, nil
+		return
+	end
 	local candidate = state.waveBasis
 
 	if candidate == nil or (candidate).consist ~= sample.sharedPhaseSeed then

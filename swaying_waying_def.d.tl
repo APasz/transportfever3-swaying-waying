@@ -21,6 +21,7 @@ global record SwayingWaying
         value: V
         previous: CacheEntry<K, V> | nil
         next: CacheEntry<K, V> | nil
+        lastSeen: integer | nil
     end
 
     record BoundedCache<K, V>
@@ -29,12 +30,17 @@ global record SwayingWaying
         entries: {K: CacheEntry<K, V>}
         newest: CacheEntry<K, V> | nil
         oldest: CacheEntry<K, V> | nil
+        time: integer | nil
+        retention: integer | nil
     end
 
     record Cache
         create: function<K, V>(integer): BoundedCache<K, V>
         get: function<K, V>(BoundedCache<K, V>, K): V | nil
-        put: function<K, V>(BoundedCache<K, V>, K, V)
+        put: function<K, V>(BoundedCache<K, V>, K, V): boolean
+        advance: function<K, V>(BoundedCache<K, V>, integer)
+        configure: function<K, V>(BoundedCache<K, V>, integer, integer)
+        canPut: function<K, V>(BoundedCache<K, V>): boolean
     end
 
     record Values
@@ -133,6 +139,8 @@ global record SwayingWaying
     end
 
     record ModelCompatibility
+        capture: function(string, RawTable): function(RawTable) | nil
+        validate: function(string, RawTable)
         configure: function(AllModParams | nil)
         isModEnabled: function(string): boolean
         wrapperFor: function(string): string
@@ -144,6 +152,7 @@ global record SwayingWaying
     end
 
     record Config
+        memoryUsage: MemoryUsage | nil
         speedDependent: boolean
         intensity: number
         rollBalance: number
@@ -157,6 +166,7 @@ global record SwayingWaying
     end
 
     enum SettingId
+        "memoryUsage"
         "enabled"
         "cameras"
         "modelDiagnostics"
@@ -175,6 +185,22 @@ global record SwayingWaying
         "Off"
         "On"
         "Speedless Sway"
+    end
+
+    enum MemoryUsage
+        "Low"
+        "Standard"
+        "High"
+    end
+
+    record MemoryBudget
+        carriages: integer
+        retention: integer
+        sharedWaves: boolean
+    end
+
+    record MemoryPolicy
+        budget: function(MemoryUsage | nil): MemoryBudget
     end
 
     enum SettingControl
@@ -279,6 +305,7 @@ global record SwayingWaying
     end
 
     record ModelCameras
+        scope: function(RawTable): {RawTable: boolean} | nil
         positions: function(RawTable): {any}
         validate: function(RawTable, any)
         capture: function(string, RawTable, CameraMode, ?boolean): CameraPlan
@@ -395,8 +422,9 @@ global record SwayingWaying
         wrapLocator: function(ModelNode, MotionAnimations | nil, WrapperRegistry, ?MotionFrame, ?WrappedNode): WrappedNode | nil
     end
 
+    type ModelPrepare = function(any): boolean
     record ModelTransaction
-        run: function(any, function(any): boolean): any
+        run: function(any, ModelPrepare, ?{RawTable: boolean}): any
     end
 
     record ReferenceTargets
@@ -487,6 +515,8 @@ global record SwayingWaying
     end
 
     record CompiledMotion
+        memoryUsage: MemoryUsage
+        sharedWaves: boolean
         modelFile: string
         speedDependent: boolean
         trackInfluence: number
@@ -511,6 +541,7 @@ global record SwayingWaying
     end
 
     record CarriageState
+        retained: boolean
         purchaseTime: integer
         model: CompiledMotion
         sample: MotionSample
@@ -554,7 +585,7 @@ global record SwayingWaying
     end
 
     record RuntimeState
-        get: function(ModelRuntimeConfig, integer, integer): CarriageState | nil
+        get: function(ModelRuntimeConfig, integer, integer, ?integer): CarriageState | nil
         model: function(ModelRuntimeConfig): RuntimeModel
     end
 
@@ -699,6 +730,7 @@ global record SwayingWaying
         SAMPLING_DISTANCE_PARAM_KEY: string
         VEHICLE_VARIATION_PARAM_KEY: string
         MODEL_DIAGNOSTICS_PARAM_KEY: string
+        MEMORY_USAGE_PARAM_KEY: string
         AUTHOR_METADATA_KEY: string
         TRACK_ROUGH_TAG: string
         TRACK_SMOOTH_TAG: string
@@ -748,7 +780,7 @@ global record SwayingWaying
         combinedFactor: function(number, number): number
         applyInfluence: function(number, number, number): number, number
         factor: function(Transformator.LandVehicleScriptingApi, integer, integer, number, number): number
-        response: function(Transformator.LandVehicleScriptingApi, integer, integer, number, number): number, number
+        response: function(Transformator.LandVehicleScriptingApi, integer, integer, number, number, ?integer, ?MemoryUsage): number, number
     end
 
     record VehicleResponse
@@ -765,6 +797,22 @@ global record SwayingWaying
     record ModelModifier
         configure: function(AllModParams | nil)
         modify: function(string, any, Config, ?boolean, ?ModelLoadOptions): any
+    end
+
+    record ModelInjectionResult
+        added: boolean
+        modelAxisSign: number
+        activeLodCount: integer
+        transformatorLodCount: integer | nil
+        wheelbases: {number}
+        sections: {ModelSection}
+        report: function() | nil
+        attachments: {string: string}
+        wrappers: WrapperRegistry | nil
+    end
+
+    record ModelInjection
+        apply: function(string, any, RawTable | nil, any, string, ModelOptions, boolean, boolean): ModelInjectionResult
     end
 
     record Origin

@@ -17,6 +17,7 @@ end
 modifier.configure(allModParams)
 local nodes = harness.require("apasz_swaying_waying::/swaying_waying/model_nodes.lua")
 local policy = harness.require("apasz_swaying_waying::/swaying_waying/model_policy.lua")
+local compatibility = harness.require("apasz_swaying_waying::/swaying_waying/model_compatibility.lua")
 local settings = harness.require("apasz_swaying_waying::/swaying_waying/settings.lua").resolve({ intensity = 1 })
 local visuals = dofile("tests/support/model_visuals.lua")
 local adapted, skipped, failed, nonRail, optedOut, cameraOnly = 0, 0, 0, 0, 0, 0
@@ -37,6 +38,7 @@ for _, resource in ipairs(manifest.resources) do
 		local config = model.metadata.transformatorConfig
 		if config and config.params and config.params.swayingWaying then
 			nodes.validate(model)
+			compatibility.validate(resource, model)
 			adapted = adapted + 1
 			return "Adapted"
 		end

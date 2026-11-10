@@ -198,6 +198,18 @@
                 "Off",
                 "On"
             ]
+        },
+        {
+            "defaultIndex": 1,
+            "key": "apasz_swaying_waying_memory_usage",
+            "name": "Memory usage",
+            "tooltip": "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.",
+            "uiType": "ComboBox",
+            "values": [
+                "Low",
+                "Standard",
+                "High"
+            ]
         }
     ],
     "postRunScript": {
@@ -206,7 +218,7 @@
     "preRunScript": {
         "fileName": ""
     },
-    "revision": 60,
+    "revision": 61,
     "runScript": {
         "fileName": "apasz_swaying_waying::/mod.script@runFn"
     },

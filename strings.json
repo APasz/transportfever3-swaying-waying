@@ -59,7 +59,12 @@
         "3 m": "3 m",
         "5 m": "5 m",
         "50%": "50%",
-        "75%": "75%"
+        "75%": "75%",
+        "Memory usage": "Memory usage",
+        "Low": "Low",
+        "Standard": "Standard",
+        "High": "High",
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply."
     },
     "de": {
         "Sway mode": "Schwankmodus",
@@ -121,7 +126,12 @@
         "3 m": "3 m",
         "5 m": "5 m",
         "50%": "50 %",
-        "75%": "75 %"
+        "75%": "75 %",
+        "Memory usage": "Speichernutzung",
+        "Low": "Niedrig",
+        "Standard": "Standard",
+        "High": "Hoch",
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Niedrig speichert weniger Wagenverläufe und Berechnungen. Hoch speichert mehr Verläufe für große Flotten. Standard eignet sich für die meisten Spielstände. Zum Anwenden neu laden."
     },
     "es": {
         "Sway mode": "Modo de balanceo",
@@ -183,7 +193,12 @@
         "3 m": "3 m",
         "5 m": "5 m",
         "50%": "50%",
-        "75%": "75%"
+        "75%": "75%",
+        "Memory usage": "Uso de memoria",
+        "Low": "Bajo",
+        "Standard": "Estándar",
+        "High": "Alto",
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Bajo conserva menos historiales de vehículos y cálculos. Alto conserva más historiales para flotas grandes. Estándar sirve para la mayoría de partidas. Recarga para aplicar."
     },
     "fr": {
         "Sway mode": "Mode de balancement",
@@ -245,7 +260,12 @@
         "3 m": "3 m",
         "5 m": "5 m",
         "50%": "50 %",
-        "75%": "75 %"
+        "75%": "75 %",
+        "Memory usage": "Utilisation de la mémoire",
+        "Low": "Faible",
+        "Standard": "Standard",
+        "High": "Élevée",
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Faible conserve moins d’historiques de véhicules et de calculs. Élevée conserve davantage d’historiques pour les grandes flottes. Standard convient à la plupart des parties. Rechargez pour appliquer."
     },
     "it": {
         "Sway mode": "Modalità di oscillazione",
@@ -307,7 +327,12 @@
         "3 m": "3 m",
         "5 m": "5 m",
         "50%": "50%",
-        "75%": "75%"
+        "75%": "75%",
+        "Memory usage": "Uso della memoria",
+        "Low": "Basso",
+        "Standard": "Standard",
+        "High": "Alto",
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Basso conserva meno cronologie dei veicoli e calcoli. Alto conserva più cronologie per flotte grandi. Standard è adatto alla maggior parte delle partite. Ricarica per applicare."
     },
     "ja": {
         "Sway mode": "揺れモード",
@@ -369,7 +394,12 @@
         "3 m": "3 m",
         "5 m": "5 m",
         "50%": "50%",
-        "75%": "75%"
+        "75%": "75%",
+        "Memory usage": "メモリ使用量",
+        "Low": "低",
+        "Standard": "標準",
+        "High": "高",
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "低では車両の履歴と計算キャッシュを減らします。高では大規模な車両群向けに多くの履歴を保持します。通常は標準が適しています。反映にはセーブの再読み込みが必要です。"
     },
     "ko": {
         "Sway mode": "흔들림 모드",
@@ -431,7 +461,12 @@
         "3 m": "3 m",
         "5 m": "5 m",
         "50%": "50%",
-        "75%": "75%"
+        "75%": "75%",
+        "Memory usage": "메모리 사용량",
+        "Low": "낮음",
+        "Standard": "표준",
+        "High": "높음",
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "낮음은 차량 이력과 계산 캐시를 적게 보관합니다. 높음은 대규모 차량 운용을 위해 더 많은 이력을 보관합니다. 대부분의 저장 게임에는 표준이 적합합니다. 적용하려면 다시 불러오세요."
     },
     "nl": {
         "Sway mode": "Schommelmodus",
@@ -493,7 +528,12 @@
         "3 m": "3 m",
         "5 m": "5 m",
         "50%": "50%",
-        "75%": "75%"
+        "75%": "75%",
+        "Memory usage": "Geheugengebruik",
+        "Low": "Laag",
+        "Standard": "Standaard",
+        "High": "Hoog",
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Laag bewaart minder voertuighistorie en berekeningen. Hoog bewaart meer historie voor grote vloten. Standaard past bij de meeste opgeslagen spellen. Herlaad om toe te passen."
     },
     "pl": {
         "Sway mode": "Tryb kołysania",
@@ -555,7 +595,12 @@
         "3 m": "3 m",
         "5 m": "5 m",
         "50%": "50%",
-        "75%": "75%"
+        "75%": "75%",
+        "Memory usage": "Użycie pamięci",
+        "Low": "Niskie",
+        "Standard": "Standardowe",
+        "High": "Wysokie",
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Niskie zachowuje mniej historii pojazdów i obliczeń. Wysokie zachowuje więcej historii dla dużych flot. Standardowe pasuje do większości zapisów. Wczytaj ponownie, aby zastosować."
     },
     "pt_BR": {
         "Sway mode": "Modo de balanço",
@@ -617,7 +662,12 @@
         "3 m": "3 m",
         "5 m": "5 m",
         "50%": "50%",
-        "75%": "75%"
+        "75%": "75%",
+        "Memory usage": "Uso de memória",
+        "Low": "Baixo",
+        "Standard": "Padrão",
+        "High": "Alto",
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Baixo mantém menos históricos de veículos e cálculos em cache. Alto mantém mais históricos para frotas grandes. Padrão atende à maioria dos jogos salvos. Recarregue para aplicar."
     },
     "ru": {
         "Sway mode": "Режим качания",
@@ -679,7 +729,12 @@
         "3 m": "3 м",
         "5 m": "5 м",
         "50%": "50 %",
-        "75%": "75 %"
+        "75%": "75 %",
+        "Memory usage": "Использование памяти",
+        "Low": "Низкое",
+        "Standard": "Стандартное",
+        "High": "Высокое",
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Низкое сохраняет меньше истории вагонов и вычислений. Высокое сохраняет больше истории для крупных парков. Стандартное подходит большинству сохранений. Для применения загрузите игру заново."
     },
     "zh_CN": {
         "Sway mode": "摇摆模式",
@@ -741,7 +796,12 @@
         "3 m": "3 米",
         "5 m": "5 米",
         "50%": "50%",
-        "75%": "75%"
+        "75%": "75%",
+        "Memory usage": "内存使用量",
+        "Low": "低",
+        "Standard": "标准",
+        "High": "高",
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "低档保留较少的车辆历史和计算缓存。高档为大型车队保留更多历史。标准适合大多数存档。重新加载存档后生效。"
     },
     "zh_TW": {
         "Sway mode": "搖擺模式",
@@ -803,6 +863,11 @@
         "3 m": "3 米",
         "5 m": "5 米",
         "50%": "50%",
-        "75%": "75%"
+        "75%": "75%",
+        "Memory usage": "記憶體使用量",
+        "Low": "低",
+        "Standard": "標準",
+        "High": "高",
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "低檔保留較少的車輛歷史與計算快取。高檔為大型車隊保留更多歷史。標準適合大多數存檔。重新載入存檔後生效。"
     }
 }

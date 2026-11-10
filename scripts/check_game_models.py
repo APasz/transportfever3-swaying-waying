@@ -167,7 +167,7 @@ def main() -> int:
             ) + "},\nresources = {" + ",".join(map(lua_string, resources)) + "},\n"
                 + f"strict = {str(args.strict).lower()}, verbose = {str(args.verbose).lower()}, author = {str(target is not None).lower()}\n}}\n",
                 encoding="utf-8")
-            completed = subprocess.run(["lua", "scripts/check_game_models.lua", str(manifest)],
+            completed = subprocess.run([os.environ.get("LUA", "lua"), "scripts/check_game_models.lua", str(manifest)],
                                        cwd=repository, env=lua_environment(), check=False)
             return completed.returncode
     except (OSError, ValueError, zipfile.BadZipFile) as error:

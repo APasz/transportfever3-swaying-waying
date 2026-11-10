@@ -20,7 +20,8 @@ local function validate(value: SwayingWaying.ModelRuntimeConfig): SwayingWaying.
     assert(type(value.settings) == "table", "Missing runtime settings")
     local resolved = settings.resolve(value.settings)
     for key, expected in pairs(resolved as SwayingWaying.RawTable) do
-        assert((value.settings as SwayingWaying.RawTable)[key] == expected, "Missing runtime setting: " .. key as string)
+        local actual = (value.settings as SwayingWaying.RawTable)[key]
+        assert(actual == expected or (key == "memoryUsage" and actual == nil), "Missing runtime setting: " .. key as string)
     end
     local sections = validation.asTable(value.sections)
     assert(sections ~= nil, "Missing runtime sections")

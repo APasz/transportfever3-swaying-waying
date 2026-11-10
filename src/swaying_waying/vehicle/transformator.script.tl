@@ -195,7 +195,8 @@ local function addSway(
     local state = runtimeState.get(
         configured,
         staticInfo.carriageEntity,
-        staticInfo.purchaseTime
+        staticInfo.purchaseTime,
+        current.world.gameTime
     )
     if state == nil then
         return true
@@ -259,7 +260,9 @@ local function addSway(
             staticInfo.carriageEntity,
             staticInfo.purchaseTime,
             distance,
-            settings.samplingDistance
+            settings.samplingDistance,
+            current.world.gameTime,
+            settings.memoryUsage
         )
         if settings.trackInfluence ~= 1.0 then
             trackFactor, shortWeight = trackResponse.applyInfluence(
@@ -302,6 +305,7 @@ local function addSway(
     sample.sharedDistance = sharedDistance
     sample.waves = nil
     if settings.secondaryMotionEnabled and proceduralMotion and sample.motionScale > 0.0
+        and presentState.retained and settings.sharedWaves
         and current.vehicle.carriageListLength >= constants.MIN_SHARED_WAVE_CARRIAGES
     then
         motion.prepareWaves(presentState, sharedBaseDistance, carriageLag)

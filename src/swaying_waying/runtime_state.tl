@@ -5,9 +5,13 @@ local motion = ug_require("apasz_swaying_waying::/swaying_waying/motion.lua") as
 local switches = ug_require("apasz_swaying_waying::/swaying_waying/motion_config.lua") as SwayingWaying.MotionConfig
 local config = ug_require("apasz_swaying_waying::/swaying_waying/runtime_config.lua") as SwayingWaying.RuntimeConfig
 local bindings = ug_require("apasz_swaying_waying::/swaying_waying/animation_bindings.lua") as SwayingWaying.AnimationBindings
+local memory = ug_require("apasz_swaying_waying::/swaying_waying/memory_policy.lua") as SwayingWaying.MemoryPolicy
 
 local models: SwayingWaying.BoundedCache<string, SwayingWaying.RuntimeModel> = cache.create(constants.MAX_RUNTIME_VEHICLE_STATES)
 local carriages: SwayingWaying.BoundedCache<integer, SwayingWaying.CarriageState> = cache.create(constants.MAX_RUNTIME_VEHICLE_STATES)
+local overflow: SwayingWaying.CarriageState | nil = nil
+local selectedBudget: SwayingWaying.MemoryBudget | nil = nil
+local overflowReported: {SwayingWaying.MemoryUsage: boolean} = {}
 
 local function compile(source: SwayingWaying.ModelRuntimeConfig): SwayingWaying.CompiledMotion
     local selected = config.validate(source)
@@ -38,6 +42,8 @@ local function compile(source: SwayingWaying.ModelRuntimeConfig): SwayingWaying.
         end
     end
     return {
+        memoryUsage = selected.memoryUsage or "Standard",
+        sharedWaves = memory.budget(selected.memoryUsage).sharedWaves,
         modelFile = source.modelFile,
         speedDependent = selected.speedDependent,
         trackInfluence = selected.trackInfluence,
@@ -79,7 +85,11 @@ local function model(source: SwayingWaying.ModelRuntimeConfig): SwayingWaying.Ru
     return entry
 end
 
-local function get(source: SwayingWaying.ModelRuntimeConfig, entity: integer, purchaseTime: integer): SwayingWaying.CarriageState | nil
+local function get(source: SwayingWaying.ModelRuntimeConfig, entity: integer, purchaseTime: integer,
+    time: integer | nil): SwayingWaying.CarriageState | nil
+    if time ~= nil then
+        cache.advance(carriages, time as integer)
+    end
     local existing = cache.get(carriages, entity)
     if existing ~= nil then
         local present = existing as SwayingWaying.CarriageState
@@ -94,18 +104,46 @@ local function get(source: SwayingWaying.ModelRuntimeConfig, entity: integer, pu
         return nil
     end
     local presentCompiled = compiled as SwayingWaying.CompiledMotion
-    local state: SwayingWaying.CarriageState = {
-        purchaseTime = purchaseTime,
-        model = presentCompiled,
-        motionVelocity = 0.0,
-        curveVelocity = 0.0,
-        sample = {
-            motionScale = 0, distance = 0, phaseSeed = 0,
-            sharedDistance = 0, sharedPhaseSeed = 0, sharedAxisReversed = false,
-            curveTilt = 0.5, swayFactor = 1, shortWeight = constants.NEUTRAL_TRACK_SHORT_WEIGHT,
-        },
-    }
-    cache.put(carriages, entity, state)
+    local budget = memory.budget(presentCompiled.memoryUsage)
+    if budget ~= selectedBudget then
+        cache.configure(carriages, budget.carriages, budget.retention)
+        selectedBudget = budget
+    end
+    local retained = existing ~= nil or cache.canPut(carriages)
+    local state: SwayingWaying.CarriageState
+    if not retained and overflow ~= nil then
+        state = overflow as SwayingWaying.CarriageState
+        state.purchaseTime, state.model = purchaseTime, presentCompiled
+        state.responseTime, state.curveSampleDistance, state.curvature = nil, nil, nil
+        state.motionVelocity, state.curveVelocity = 0.0, 0.0
+        state.waves, state.waveBasis, state.sample.waves = nil, nil, nil
+        state.sample.motionScale, state.sample.curveTilt = 0.0, 0.5
+    else
+        state = {
+            retained = retained,
+            purchaseTime = purchaseTime,
+            model = presentCompiled,
+            motionVelocity = 0.0,
+            curveVelocity = 0.0,
+            sample = {
+                motionScale = 0, distance = 0, phaseSeed = 0,
+                sharedDistance = 0, sharedPhaseSeed = 0, sharedAxisReversed = false,
+                curveTilt = 0.5, swayFactor = 1, shortWeight = constants.NEUTRAL_TRACK_SHORT_WEIGHT,
+            },
+        }
+    end
+    if retained then
+        cache.put(carriages, entity, state)
+    else
+        overflow = state
+        if not overflowReported[presentCompiled.memoryUsage] then
+            overflowReported[presentCompiled.memoryUsage] = true
+            logger.warnOnce("memory-capacity:" .. presentCompiled.memoryUsage,
+                "Carriage history budget reached (" .. presentCompiled.memoryUsage .. ", " .. budget.carriages
+                    .. " per Lua context); excess carriages use motion without retained damping history. "
+                    .. "Select a larger Memory usage preset when available.")
+        end
+    end
     return state
 end
 

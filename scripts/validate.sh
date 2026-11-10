@@ -24,10 +24,11 @@ for argument in "$@"; do
     esac
 done
 teal=${TL:-tl}
+lua_runner=${LUA:-lua}
 if [[ -z "${TL:-}" ]] && ! command -v "$teal" >/dev/null 2>&1; then
     teal="$HOME/.luarocks/bin/tl"
 fi
-for tool in "$teal" stylua lua python3; do
+for tool in "$teal" stylua "$lua_runner" python3; do
     if ! command -v "$tool" >/dev/null 2>&1; then
         echo "Required development tool not found: $tool" >&2
         exit 1
@@ -98,7 +99,7 @@ if [[ "$isolation" == 1 ]]; then
     echo 'Isolation build: generated switches retain your edits; regression tests use all motion components.'
 fi
 for test in tests/*_check.lua; do
-    SWAYING_WAYING_TEST_ISOLATION="$isolation" lua "$test"
+    SWAYING_WAYING_TEST_ISOLATION="$isolation" "$lua_runner" "$test"
 done
 for test in tests/*_check.sh; do
     bash "$test"

@@ -16,6 +16,8 @@ local constants = ug_require("apasz_swaying_waying::/swaying_waying/constants.lu
 
 local logger = ug_require("apasz_swaying_waying::/swaying_waying/logger.lua")
 
+local memory = ug_require("apasz_swaying_waying::/swaying_waying/memory_policy.lua")
+
 local SLOW_TRACK_SPEED = 100.0 / 3.6
 local STANDARD_TRACK_SPEED = 160.0 / 3.6
 local HIGH_SPEED_TRACK_SPEED = 350.0 / 3.6
@@ -32,6 +34,7 @@ local SMOOTH_SHORT_WEIGHT = 0.45
 local MAX_TRACK_INFLUENCE = constants.MAX_TRACK_INFLUENCE
 
 local trackStates = cache.create(constants.MAX_RUNTIME_VEHICLE_STATES)
+local selectedMemory = nil
 
 local function smoothStep(value)
 	local ratio = clamp(value, 0.0, 1.0)
@@ -251,6 +254,13 @@ local function stateFor(carriageEntity, purchaseTime)
 	if state ~= nil and (state).purchaseTime == purchaseTime then
 		return state
 	end
+	if state == nil and not cache.canPut(trackStates) then
+		logger.warnOnce(
+			"track-memory-capacity",
+			"Track history budget reached; excess carriages use neutral track response"
+		)
+		return nil
+	end
 	local created = newTrackState(purchaseTime)
 	cache.put(trackStates, carriageEntity, created)
 	return created
@@ -325,10 +335,23 @@ local function targetFactor(landVehicleApi, state, distance)
 	return 1.0
 end
 
-local function response(landVehicleApi, carriageEntity, purchaseTime, distance, samplingDistance)
+local function response(landVehicleApi, carriageEntity, purchaseTime, distance, samplingDistance, time, memoryUsage)
 	assert(distance > -math.huge and distance < math.huge, "Invalid track sampling distance")
 	assert(samplingDistance >= 0.0 and samplingDistance < math.huge, "Invalid track sampling interval")
-	local state = stateFor(carriageEntity, purchaseTime)
+	if time ~= nil then
+		local mode = memoryUsage or "Standard"
+		if mode ~= selectedMemory then
+			local budget = memory.budget(mode)
+			cache.configure(trackStates, budget.carriages, budget.retention)
+			selectedMemory = mode
+		end
+		cache.advance(trackStates, time)
+	end
+	local candidate = stateFor(carriageEntity, purchaseTime)
+	if candidate == nil then
+		return 1.0, NEUTRAL_SHORT_WEIGHT
+	end
+	local state = candidate
 	if not state.hasTarget or math.abs(distance - state.sampleDistance) >= samplingDistance then
 		state.targetFactor = targetFactor(landVehicleApi, state, distance)
 		state.targetShortWeight = shortWeightForFactor(state.targetFactor)
@@ -355,7 +378,7 @@ local function response(landVehicleApi, carriageEntity, purchaseTime, distance, 
 end
 
 local function factor(landVehicleApi, carriageEntity, purchaseTime, distance, samplingDistance)
-	local outputFactor = response(landVehicleApi, carriageEntity, purchaseTime, distance, samplingDistance)
+	local outputFactor = response(landVehicleApi, carriageEntity, purchaseTime, distance, samplingDistance, nil, nil)
 
 	return outputFactor
 end

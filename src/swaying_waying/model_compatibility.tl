@@ -28,6 +28,117 @@ local snowPowderChecked = false
 
 local snowPowderAdapter: ModelAdapter | nil = nil
 
+local PRR_NAMESPACE = "PRR_B6sab_1::/"
+local record ValveGearPart
+    index: integer
+end
+local record ValveGearLod
+    count: integer
+    parts: {string: ValveGearPart}
+end
+local record ValveGearBuilder
+    buildLodTables: function({any}, {string: string}, integer): {ValveGearLod}
+end
+
+local function indexedNodes(root: ModelNode): {ModelNode}
+    local result: {ModelNode} = {}
+    local function visit(node: ModelNode)
+        result[#result + 1] = node
+        for _, child in ipairs(node.children or {}) do
+            visit(child)
+        end
+    end
+    visit(root)
+    return result
+end
+
+local function valveGear(fileName: string, model: DynamicTable): DynamicTable | nil
+    if fileName:sub(1, #PRR_NAMESPACE) ~= PRR_NAMESPACE then
+        return nil
+    end
+    local metadata = dynamicTable(model.metadata)
+    local config = metadata ~= nil and dynamicTable((metadata as DynamicTable).transformatorConfig) or nil
+    local params = config ~= nil and dynamicTable((config as DynamicTable).params) or nil
+    if params == nil then
+        return nil
+    end
+    local value = (params as DynamicTable).valveGear
+    local gear = dynamicTable(value)
+    assert(value == nil or gear ~= nil, "Invalid PRR valve-gear configuration")
+    return gear
+end
+
+local function validateLodCache(model: DynamicTable, value: any): {ValveGearLod}
+    local lods = model.lods as {DynamicTable}
+    local cached = dynamicArray(value)
+    assert(cached ~= nil and validation.arraySize(cached as DynamicTable) ~= nil,
+        "Invalid PRR valve-gear LOD cache")
+    for index, entryValue in ipairs(cached as {any}) do
+        local entry = dynamicTable(entryValue)
+        assert(entry ~= nil, "Invalid PRR valve-gear LOD entry")
+        assert(lods[index] ~= nil, "PRR valve-gear cache references a missing LOD")
+        local tree = indexedNodes(lods[index].node as ModelNode)
+        assert((entry as DynamicTable).count == #tree, "PRR valve-gear node count does not match the prepared hierarchy")
+        local parts = dynamicTable((entry as DynamicTable).parts)
+        assert(parts ~= nil, "Invalid PRR valve-gear part cache")
+        for key, partValue in pairs(parts as DynamicTable) do
+            local part = dynamicTable(partValue)
+            assert(type(key) == "string" and part ~= nil, "Invalid PRR valve-gear part cache")
+            local order = (part as DynamicTable).index
+            assert(validation.nonnegative(order) and (order as number) % 1 == 0
+                and tree[(order as integer) + 1] ~= nil, "Invalid PRR valve-gear node index")
+        end
+    end
+    return cached as {ValveGearLod}
+end
+
+local function validateIndexedParts(fileName: string, model: DynamicTable)
+    local gear = valveGear(fileName, model)
+    if gear ~= nil then
+        nodes.validate(model)
+        validateLodCache(model, (gear as DynamicTable).lods)
+    end
+end
+
+local function captureIndexedParts(fileName: string, model: DynamicTable): function(DynamicTable) | nil
+    local gear = valveGear(fileName, model)
+    if gear == nil then
+        return nil
+    end
+    nodes.validate(model)
+    local cached = validateLodCache(model, (gear as DynamicTable).lods)
+    local names: {string: string} = {}
+    local targets: {{string: ModelNode}} = {}
+    for index, entry in ipairs(cached) do
+        local tree = indexedNodes((model.lods as {DynamicTable})[index].node as ModelNode)
+        targets[index] = {}
+        for key, part in pairs(entry.parts) do
+            local target = tree[part.index + 1]
+            local name = target.name
+            assert(name ~= nil and name ~= "", "PRR valve-gear parts need named anchors")
+            assert(names[key] == nil or names[key] == name, "PRR valve-gear part names differ across LODs")
+            names[key] = name as string
+            targets[index][key] = target
+        end
+    end
+    local builder = ug_require(PRR_NAMESPACE .. "scripts/valvegear_util.lua") as ValveGearBuilder
+    assert(type(builder) == "table" and type(builder.buildLodTables) == "function",
+        "PRR valve-gear hierarchy adapter is unavailable")
+    return function(prepared: DynamicTable)
+        local refreshed = validateLodCache(prepared, builder.buildLodTables(prepared.lods as {any}, names, #cached))
+        assert(#refreshed == #cached, "PRR valve-gear adapter changed the active LOD count")
+        for index, original in ipairs(cached) do
+            local tree = indexedNodes((prepared.lods as {DynamicTable})[index].node as ModelNode)
+            for key in pairs(original.parts) do
+                local part = refreshed[index].parts[key]
+                assert(part ~= nil and tree[part.index + 1] == targets[index][key],
+                    "PRR valve-gear adapter lost or changed a scripted part: " .. key)
+            end
+        end
+        (valveGear(fileName, prepared) as DynamicTable).lods = refreshed
+    end
+end
+
 local function isModEnabled(modId: string): boolean
     return enabledMods[modId] == true
 end
@@ -249,6 +360,8 @@ local function refreshRealTrackCantRest(
 end
 
 local module: SwayingWaying.ModelCompatibility = {
+    capture = captureIndexedParts,
+    validate = validateIndexedParts,
     configure = configure,
     isModEnabled = isModEnabled,
     wrapperFor = wrapperFor, defaultFor = defaultFor,

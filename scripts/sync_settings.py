@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 import subprocess
 
@@ -16,7 +17,7 @@ def main() -> None:
     args = parser.parse_args()
     root = Path(__file__).resolve().parent.parent
     expected: object = json.loads(
-        subprocess.check_output(["lua", "scripts/export_settings.lua"], cwd=root, text=True)
+        subprocess.check_output([os.environ.get("LUA", "lua"), "scripts/export_settings.lua"], cwd=root, text=True)
     )
     manifest_path = root / "mod.json"
     manifest = json.loads(manifest_path.read_text())

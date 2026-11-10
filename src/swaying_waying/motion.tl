@@ -228,6 +228,11 @@ local function prepareWaves(
     carriageLag: number
 )
     local sample = state.sample
+    if state.model.sharedWaves == false then
+        sample.waves = nil
+        state.waves, state.waveBasis = nil, nil
+        return
+    end
     local candidate = state.waveBasis
     -- Distance bases remain shared by consist, independently of carriage phases.
     if candidate == nil or (candidate as SwayingWaying.WaveBasis).consist ~= sample.sharedPhaseSeed then

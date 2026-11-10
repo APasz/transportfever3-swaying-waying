@@ -119,6 +119,43 @@ local function modelRoots(model: RawTable): {ModelNode}
     return result
 end
 
+local function cameraScope(model: RawTable): {RawTable: boolean} | nil
+    local scope: {RawTable: boolean} = {}
+    local plain = true
+    local function include(value: any)
+        if type(value) == "table" then
+            scope[value as RawTable] = true
+            plain = plain and getmetatable(value) == nil
+        end
+    end
+    local function branch(node: ModelNode)
+        if scope[node as RawTable] then
+            return
+        end
+        include(node)
+        include(node.children)
+        for _, child in ipairs(node.children or {}) do
+            branch(child)
+        end
+    end
+    include(model)
+    include(model.lods)
+    for _, lod in ipairs(model.lods as {RawTable}) do
+        include(lod)
+        branch(lod.node as ModelNode)
+    end
+    local metadata = model.metadata as RawTable
+    include(metadata)
+    include(metadata.metadata)
+    include(metadata.cameraConfig)
+    if type(metadata.cameraConfig) == "table" then
+        include((metadata.cameraConfig as RawTable).positions)
+    end
+    -- Camera application writes only hierarchy links and the camera/HUD fields.
+    -- Inherited tables need the complete graph to preserve their alias semantics.
+    return plain and scope or nil
+end
+
 local function modelIndices(model: RawTable, motion: {string: boolean}, placements: {string: boolean}): {FrameIndex}
     local result: {FrameIndex} = {}
     for _, root in ipairs(modelRoots(model)) do
@@ -669,6 +706,7 @@ local function apply(fileName: string, model: RawTable, plan: SwayingWaying.Came
 end
 
 local module: SwayingWaying.ModelCameras = {
+    scope = cameraScope,
     positions = cameraPositions, validate = validate, capture = capture, apply = apply,
 }
 return module
