@@ -13,12 +13,23 @@ local constants = ug_require("apasz_swaying_waying::/swaying_waying/constants.lu
 
 local CURVATURE_WINDOW = 40.0
 local LATERAL_ACCELERATION_SCALE = 1.2
+local FULL_CURVE_RADIUS = 1000.0
+
+local function swayFactor(curvature, balance)
+	if curvature == nil then
+		return 1.0
+	end
+	local curved = math.min(math.abs(curvature) * FULL_CURVE_RADIUS, 1.0)
+	local straightFactor = math.min(2.0 * (1.0 - balance), 1.0)
+	local curveFactor = math.min(2.0 * balance, 1.0)
+	return straightFactor + (curveFactor - straightFactor) * curved
+end
 
 local function sampleCurvature(landVehicleApi)
 	local succeeded, result =
 		pcall(landVehicleApi.getAverageCurvature, landVehicleApi, CURVATURE_WINDOW, CURVATURE_WINDOW)
 	if not succeeded then
-		logger.warnOnce("curve-query-failed", "Ignoring unavailable curve lean: " .. tostring(result))
+		logger.warnOnce("curve-query-failed", "Ignoring unavailable track curvature: " .. tostring(result))
 	elseif type(result) == "number" and result > -math.huge and result < math.huge then
 		return result
 	else
@@ -27,7 +38,7 @@ local function sampleCurvature(landVehicleApi)
 	return nil
 end
 
-local function tilt(landVehicleApi, speed, reversed, state, distance)
+local function tilt(landVehicleApi, speed, reversed, state, distance, calculateLean)
 	assert(speed > -math.huge and speed < math.huge, "Invalid curve-lean speed")
 	assert(distance > -math.huge and distance < math.huge, "Invalid curve sampling distance")
 	if math.abs(speed) < constants.MIN_MOTION_SPEED then
@@ -46,7 +57,7 @@ local function tilt(landVehicleApi, speed, reversed, state, distance)
 		state.curveSampleDistance = distance
 	end
 	local curvature = state.curvature
-	if curvature == nil or curvature == 0.0 then
+	if curvature == nil or curvature == 0.0 or calculateLean == false then
 		return 0.5, curvature
 	end
 
@@ -55,5 +66,5 @@ local function tilt(landVehicleApi, speed, reversed, state, distance)
 	return (math.tanh(speed * speed * signedCurvature / LATERAL_ACCELERATION_SCALE) + 1.0) * 0.5, presentCurvature
 end
 
-local module = { tilt = tilt }
+local module = { tilt = tilt, swayFactor = swayFactor }
 return module

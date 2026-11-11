@@ -231,7 +231,7 @@ local function addSway(
     local travelDistance = current.landVehicle.wheelAnimationInfo.totalDist
     local curveTilt = 0.5
     local averageCurvature: number | nil = nil
-    if curveLean then
+    if curveLean or (proceduralMotion and settings.curveBalance ~= 0.5) then
         local previousTime = presentState.responseTime
         if previousTime ~= nil and current.world.gameTime < previousTime then
             presentState.curveSampleDistance = nil
@@ -241,8 +241,12 @@ local function addSway(
             current.vehicle.speed,
             current.landVehicle.reversed,
             presentState,
-            travelDistance
+            travelDistance,
+            curveLean
         )
+        if not curveLean then
+            curveTilt = 0.5
+        end
     end
     local phaseSeed = params.entityId + staticInfo.carriageEntity
     local distance = proceduralMotion and travelDistance or 0.0
@@ -295,6 +299,9 @@ local function addSway(
     local sample = presentState.sample
     local motionScale = proceduralMotion
         and motion.speedFactor(current.vehicle.speed, settings.motion.profile, settings.speedDependent) or 0.0
+    if proceduralMotion and settings.curveBalance ~= 0.5 then
+        motionScale = motionScale * curveResponse.swayFactor(averageCurvature, settings.curveBalance)
+    end
     motionResponse.update(presentState, current.world.gameTime, motionScale, curveTilt)
     sample.phaseSeed = phaseSeed
     sample.sharedPhaseSeed = params.entityId

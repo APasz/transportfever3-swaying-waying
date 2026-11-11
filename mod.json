@@ -129,6 +129,26 @@
             ]
         },
         {
+            "defaultIndex": 5,
+            "key": "apasz_swaying_waying_curve_balance",
+            "name": "Straight / Curve sway",
+            "tooltip": "Sway strength on straight / curved track. 100 / 100 keeps both at full strength. Gentle curves blend between the two. Curve lean is separate.",
+            "uiType": "Slider",
+            "values": [
+                "100 / 0",
+                "100 / 20",
+                "100 / 40",
+                "100 / 60",
+                "100 / 80",
+                "100 / 100",
+                "80 / 100",
+                "60 / 100",
+                "40 / 100",
+                "20 / 100",
+                "0 / 100"
+            ]
+        },
+        {
             "defaultIndex": 1,
             "key": "apasz_swaying_waying_curve_sampling_distance",
             "name": "Curve sampling interval",
@@ -218,7 +238,7 @@
     "preRunScript": {
         "fileName": ""
     },
-    "revision": 61,
+    "revision": 62,
     "runScript": {
         "fileName": "apasz_swaying_waying::/mod.script@runFn"
     },

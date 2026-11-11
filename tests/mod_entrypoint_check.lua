@@ -84,6 +84,11 @@ assertEqual(
 	1,
 	"omitted curve sampling interval defaults to one metre in existing saves"
 )
+assertEqual(
+	defaultSettingsModel.metadata.transformatorConfig.params.swayingWaying.settings.curveBalance,
+	0.5,
+	"omitted curve balance preserves existing sway"
+)
 
 runFn({}, {}, {
 	[constants.MOD_ID] = {
@@ -94,6 +99,7 @@ runFn({}, {}, {
 		[constants.HEAVE_BALANCE_PARAM_KEY] = 7,
 		[constants.CURVE_LEAN_INTENSITY_PARAM_KEY] = 7,
 		[constants.CURVE_SAMPLING_DISTANCE_PARAM_KEY] = 4,
+		[constants.CURVE_BALANCE_PARAM_KEY] = 8,
 		[constants.TRACK_INFLUENCE_PARAM_KEY] = 1,
 		[constants.SAMPLING_DISTANCE_PARAM_KEY] = 2,
 		[constants.VEHICLE_VARIATION_PARAM_KEY] = 5,
@@ -169,6 +175,11 @@ assertEqual(
 	5,
 	"the selected curve sampling interval reaches model runtime settings"
 )
+assertEqual(
+	configuredModel.metadata.transformatorConfig.params.swayingWaying.settings.curveBalance,
+	0.7,
+	"selected curve balance reaches model runtime settings"
+)
 
 do
 	local model = railModel("::/vehicle/train/shared/default_train.trf")
@@ -232,6 +243,18 @@ local settings = ug_require("apasz_swaying_waying::/swaying_waying/settings.lua"
 local byId = {}
 for _, definition in ipairs(settings.definitions) do
 	byId[definition.id] = definition
+end
+
+do
+	local balance = assert(byId.curveBalance)
+	local curveResponse = ug_require("apasz_swaying_waying::/swaying_waying/curve_response.lua")
+	assertEqual(balance.labels[balance.defaultIndex], "100 / 100", "curve balance defaults to full sway")
+	for index, value in ipairs(balance.values) do
+		local straight, curved = balance.labels[index]:match("^(%d+) / (%d+)$")
+		assert(straight and curved, "curve balance labels contain two percentages")
+		assertNear(curveResponse.swayFactor(0, value), tonumber(straight) / 100, 1e-12, "straight label matches sway")
+		assertNear(curveResponse.swayFactor(0.001, value), tonumber(curved) / 100, 1e-12, "curve label matches sway")
+	end
 end
 
 do

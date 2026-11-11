@@ -2,6 +2,20 @@ local harness = dofile("tests/support/harness.lua").new()
 local curve = harness.require("apasz_swaying_waying::/swaying_waying/curve_response.lua")
 local near = dofile("tests/assertions.lua").near
 
+for _, case in ipairs({
+	{ 0, 0, 1 },
+	{ 0.001, 0, 0 },
+	{ -0.001, 1, 1 },
+	{ 0, 1, 0 },
+	{ 0.0005, 0, 0.5 },
+	{ 0.002, 0, 0 },
+	{ 0, 0.5, 1 },
+	{ 0.001, 0.5, 1 },
+}) do
+	near(curve.swayFactor(case[1], case[2]), case[3], 1e-12, "curvature sway balance")
+end
+assert(curve.swayFactor(nil, 0) == 1, "unavailable curvature leaves sway unchanged")
+
 local function nativeTilt(curvature, speed, reversed)
 	local signed = reversed and curvature or -curvature
 	return (math.tanh(speed * speed * signed / 1.2) + 1) / 2
@@ -170,6 +184,17 @@ do
 	end
 	math.tanh = originalTanh
 	assert(evaluations == 0, "straight track skips the lean response calculation")
+end
+
+do
+	local item = fixture()
+	local originalTanh = math.tanh
+	math.tanh = function()
+		error("lean response should not be evaluated")
+	end
+	local tilt, curvature = curve.tilt(item.api, 20, false, item.state, 0, false)
+	math.tanh = originalTanh
+	assert(tilt == 0.5 and curvature == item.curvature, "balance-only sampling skips the lean calculation")
 end
 
 for _, invalid in ipairs({ 0 / 0, math.huge, -math.huge }) do

@@ -58,6 +58,7 @@ local function compile(source)
 		trackInfluence = selected.trackInfluence,
 		samplingDistance = selected.samplingDistance,
 		curveSamplingDistance = selected.curveSamplingDistance,
+		curveBalance = selected.curveBalance,
 		vehicleVariation = selected.vehicleVariation,
 		vehicleFactor = source.vehicleFactor,
 		revision = source.revision,

@@ -21,7 +21,8 @@ local function validate(value: SwayingWaying.ModelRuntimeConfig): SwayingWaying.
     local resolved = settings.resolve(value.settings)
     for key, expected in pairs(resolved as SwayingWaying.RawTable) do
         local actual = (value.settings as SwayingWaying.RawTable)[key]
-        assert(actual == expected or (key == "memoryUsage" and actual == nil), "Missing runtime setting: " .. key as string)
+        assert(actual == expected or ((key == "memoryUsage" or key == "curveBalance") and actual == nil),
+            "Missing runtime setting: " .. key as string)
     end
     local sections = validation.asTable(value.sections)
     assert(sections ~= nil, "Missing runtime sections")

@@ -38,6 +38,7 @@ local constants = {
 	HEAVE_BALANCE_PARAM_KEY = "apasz_swaying_waying_heave_balance",
 	CURVE_LEAN_INTENSITY_PARAM_KEY = "apasz_swaying_waying_curve_lean_intensity",
 	CURVE_SAMPLING_DISTANCE_PARAM_KEY = "apasz_swaying_waying_curve_sampling_distance",
+	CURVE_BALANCE_PARAM_KEY = "apasz_swaying_waying_curve_balance",
 	TRACK_INFLUENCE_PARAM_KEY = "apasz_swaying_waying_track_influence",
 	SAMPLING_DISTANCE_PARAM_KEY = "apasz_swaying_waying_sampling_distance",
 	VEHICLE_VARIATION_PARAM_KEY = "apasz_swaying_waying_vehicle_variation",

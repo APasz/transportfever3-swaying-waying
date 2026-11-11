@@ -36,7 +36,10 @@ local function validate(value)
 	local resolved = settings.resolve(value.settings)
 	for key, expected in pairs(resolved) do
 		local actual = (value.settings)[key]
-		assert(actual == expected or (key == "memoryUsage" and actual == nil), "Missing runtime setting: " .. key)
+		assert(
+			actual == expected or ((key == "memoryUsage" or key == "curveBalance") and actual == nil),
+			"Missing runtime setting: " .. key
+		)
 	end
 	local sections = validation.asTable(value.sections)
 	assert(sections ~= nil, "Missing runtime sections")

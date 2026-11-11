@@ -7,6 +7,7 @@ local intensity: {number} = { 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2 }
 local balance: {number} = { 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, constants.MAX_BALANCE }
 local balanceLabels: {string} = { "Off", "0.25x", "0.5x", "0.75x", "1x", "1.25x", "1.5x", "1.75x", "2x" }
 local track: {number} = { 0, 0.25, 0.5, 0.75, 1, 1.25, constants.MAX_TRACK_INFLUENCE }
+local curveBalance: {number} = { 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1 }
 local variation: {number} = { 0, 0.5, 1, 1.5, constants.MAX_VEHICLE_VARIATION }
 local sampling: {number} = { 0, 1, 3, constants.DEFAULT_SAMPLE_DISTANCE, 10, 15 }
 local samplingLabels: {string} = { "Frame", "1 m", "3 m", "5 m", "10 m", "15 m" }
@@ -120,6 +121,18 @@ local definitions: {SwayingWaying.SettingDefinition} = {
         labels = balanceLabels,
     },
     {
+        id = "curveBalance", key = constants.CURVE_BALANCE_PARAM_KEY,
+        name = "Straight / Curve sway",
+        tooltip = "Sway strength on straight / curved track. 100 / 100 keeps both at full strength. Gentle curves blend between the two. Curve lean is separate.",
+        uiType = "Slider",
+        defaultIndex = 6,
+        values = curveBalance,
+        labels = {
+            "100 / 0", "100 / 20", "100 / 40", "100 / 60", "100 / 80", "100 / 100",
+            "80 / 100", "60 / 100", "40 / 100", "20 / 100", "0 / 100",
+        },
+    },
+    {
         id = "curveSamplingDistance", key = constants.CURVE_SAMPLING_DISTANCE_PARAM_KEY,
         name = "Curve sampling interval",
         tooltip = "How often curvature is sampled. Every Frame gives the closest response; longer distances save CPU but may cause stepping. Suspension smoothing remains continuous.",
@@ -221,6 +234,7 @@ local function resolveSettings(config: SwayingWaying.Config): SwayingWaying.Conf
         heaveBalance = scale(config.heaveBalance, "heaveBalance"),
         curveLeanIntensity = scale(config.curveLeanIntensity, "curveLeanIntensity"),
         curveSamplingDistance = scale(config.curveSamplingDistance, "curveSamplingDistance"),
+        curveBalance = scale(config.curveBalance, "curveBalance"),
         trackInfluence = scale(config.trackInfluence, "trackInfluence"),
         samplingDistance = scale(config.samplingDistance, "samplingDistance"),
         vehicleVariation = scale(config.vehicleVariation, "vehicleVariation"),
@@ -251,6 +265,7 @@ local function read(allModParams: AllModParams | nil): boolean, SwayingWaying.Co
         heaveBalance = selected(params, "heaveBalance"),
         curveLeanIntensity = selected(params, "curveLeanIntensity"),
         curveSamplingDistance = selected(params, "curveSamplingDistance"),
+        curveBalance = selected(params, "curveBalance"),
         trackInfluence = selected(params, "trackInfluence"),
         samplingDistance = selected(params, "samplingDistance"),
         vehicleVariation = selected(params, "vehicleVariation"),

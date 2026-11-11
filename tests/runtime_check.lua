@@ -756,6 +756,7 @@ do
 				curveTilt = sample.curveTilt,
 				shortWeight = sample.shortWeight,
 				swayFactor = sample.swayFactor,
+				motionScale = sample.motionScale,
 			}
 			return fn(sample, settings, geometry)
 		end
@@ -772,14 +773,14 @@ do
 		calls.maintenance = calls.maintenance + 1
 		return 1.10
 	end
-	local curveSpeed, curveReversed, curveInterval, curveDistance
+	local curveSpeed, curveReversed, curveInterval, curveDistance, sampledCurvature
 	curveResponse.tilt = function(_, speed, reversed, state, distance)
 		calls.curve = calls.curve + 1
 		curveSpeed = speed
 		curveReversed = reversed
 		curveInterval = state.model.curveSamplingDistance
 		curveDistance = distance
-		return 0.75
+		return 0.75, sampledCurvature
 	end
 	params.currentInfo.vehicle.positionInCarriageList = 1
 	params.currentInfo.vehicle.carriageListLength = 3
@@ -846,6 +847,31 @@ do
 	assertEqual(calls.curve, 0, "Off on the curve lean intensity slider skips curvature queries")
 	assertNear(samples[1].curveTilt, 0.5, 0.000001, "Off on the curve lean intensity slider produces neutral lean")
 	assertEqual(calls.track, 1, "Off on the curve lean intensity slider retains procedural track response")
+	params.transformatorConfigParams.swayingWaying.settings.curveBalance = 1
+	sampledCurvature = 0
+	update()
+	assertEqual(calls.curve, 1, "curve balance samples curvature even with curve lean disabled")
+	assertNear(samples[1].motionScale, 0, 0.000001, "curve-only balance suppresses straight-track motion")
+	assertNear(samples[1].curveTilt, 0.5, 0.000001, "curve balance does not enable curve lean")
+	sampledCurvature = 0.001
+	local previousTime = params.currentInfo.world.gameTime
+	params.currentInfo.world.gameTime = previousTime + 16
+	samples = {}
+	scripts.train.updateFn({}, params, output)
+	assert(
+		samples[1].motionScale > 0 and samples[1].motionScale < motion.speedFactor(18.0, "DEFAULT"),
+		"curve balance transitions smoothly between sampled curvature values"
+	)
+	params.currentInfo.world.gameTime = previousTime
+	update()
+	assertNear(
+		samples[1].motionScale,
+		motion.speedFactor(18.0, "DEFAULT"),
+		0.000001,
+		"curve-only balance retains full motion on curves"
+	)
+	params.transformatorConfigParams.swayingWaying.settings.curveBalance = 0.5
+	sampledCurvature = nil
 	params.transformatorConfigParams.swayingWaying.settings.curveLeanIntensity = 1
 
 	config.curveLean = false

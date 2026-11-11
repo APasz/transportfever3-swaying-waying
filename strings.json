@@ -64,7 +64,9 @@
         "Low": "Low",
         "Standard": "Standard",
         "High": "High",
-        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply."
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.",
+        "Straight / Curve sway": "Straight / Curve sway",
+        "Sway strength on straight / curved track. 100 / 100 keeps both at full strength. Gentle curves blend between the two. Curve lean is separate.": "Sway strength on straight / curved track. 100 / 100 keeps both at full strength. Gentle curves blend between the two. Curve lean is separate."
     },
     "de": {
         "Sway mode": "Schwankmodus",
@@ -131,7 +133,9 @@
         "Low": "Niedrig",
         "Standard": "Standard",
         "High": "Hoch",
-        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Niedrig speichert weniger Wagenverläufe und Berechnungen. Hoch speichert mehr Verläufe für große Flotten. Standard eignet sich für die meisten Spielstände. Zum Anwenden neu laden."
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Niedrig speichert weniger Wagenverläufe und Berechnungen. Hoch speichert mehr Verläufe für große Flotten. Standard eignet sich für die meisten Spielstände. Zum Anwenden neu laden.",
+        "Straight / Curve sway": "Schwanken gerade / Kurve",
+        "Sway strength on straight / curved track. 100 / 100 keeps both at full strength. Gentle curves blend between the two. Curve lean is separate.": "Schwankstärke auf gerader Strecke / in Kurven. 100 / 100 lässt beides unverändert. Sanfte Kurven liegen dazwischen. Die Kurvenneigung wird separat geregelt."
     },
     "es": {
         "Sway mode": "Modo de balanceo",
@@ -198,7 +202,9 @@
         "Low": "Bajo",
         "Standard": "Estándar",
         "High": "Alto",
-        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Bajo conserva menos historiales de vehículos y cálculos. Alto conserva más historiales para flotas grandes. Estándar sirve para la mayoría de partidas. Recarga para aplicar."
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Bajo conserva menos historiales de vehículos y cálculos. Alto conserva más historiales para flotas grandes. Estándar sirve para la mayoría de partidas. Recarga para aplicar.",
+        "Straight / Curve sway": "Balanceo en recta / curva",
+        "Sway strength on straight / curved track. 100 / 100 keeps both at full strength. Gentle curves blend between the two. Curve lean is separate.": "Intensidad del balanceo en recta / curva. 100 / 100 mantiene ambas al máximo. Las curvas suaves interpolan entre ambos valores. La inclinación en curvas se ajusta aparte."
     },
     "fr": {
         "Sway mode": "Mode de balancement",
@@ -265,7 +271,9 @@
         "Low": "Faible",
         "Standard": "Standard",
         "High": "Élevée",
-        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Faible conserve moins d’historiques de véhicules et de calculs. Élevée conserve davantage d’historiques pour les grandes flottes. Standard convient à la plupart des parties. Rechargez pour appliquer."
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Faible conserve moins d’historiques de véhicules et de calculs. Élevée conserve davantage d’historiques pour les grandes flottes. Standard convient à la plupart des parties. Rechargez pour appliquer.",
+        "Straight / Curve sway": "Oscillation en ligne droite / courbe",
+        "Sway strength on straight / curved track. 100 / 100 keeps both at full strength. Gentle curves blend between the two. Curve lean is separate.": "Intensité de l’oscillation en ligne droite / courbe. 100 / 100 conserve les deux à pleine intensité. Les courbes douces interpolent entre les deux. L’inclinaison en courbe est distincte."
     },
     "it": {
         "Sway mode": "Modalità di oscillazione",
@@ -332,7 +340,9 @@
         "Low": "Basso",
         "Standard": "Standard",
         "High": "Alto",
-        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Basso conserva meno cronologie dei veicoli e calcoli. Alto conserva più cronologie per flotte grandi. Standard è adatto alla maggior parte delle partite. Ricarica per applicare."
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Basso conserva meno cronologie dei veicoli e calcoli. Alto conserva più cronologie per flotte grandi. Standard è adatto alla maggior parte delle partite. Ricarica per applicare.",
+        "Straight / Curve sway": "Oscillazione in rettilineo / curva",
+        "Sway strength on straight / curved track. 100 / 100 keeps both at full strength. Gentle curves blend between the two. Curve lean is separate.": "Intensità dell’oscillazione in rettilineo / curva. 100 / 100 mantiene entrambe al massimo. Le curve dolci interpolano tra i due valori. L’inclinazione in curva è separata."
     },
     "ja": {
         "Sway mode": "揺れモード",
@@ -399,7 +409,9 @@
         "Low": "低",
         "Standard": "標準",
         "High": "高",
-        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "低では車両の履歴と計算キャッシュを減らします。高では大規模な車両群向けに多くの履歴を保持します。通常は標準が適しています。反映にはセーブの再読み込みが必要です。"
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "低では車両の履歴と計算キャッシュを減らします。高では大規模な車両群向けに多くの履歴を保持します。通常は標準が適しています。反映にはセーブの再読み込みが必要です。",
+        "Straight / Curve sway": "直線 / カーブの揺れ",
+        "Sway strength on straight / curved track. 100 / 100 keeps both at full strength. Gentle curves blend between the two. Curve lean is separate.": "直線 / カーブでの揺れの強さ。100 / 100 では両方が最大です。緩やかなカーブでは両者の間を補間します。カーブでの車体の傾きは別設定です。"
     },
     "ko": {
         "Sway mode": "흔들림 모드",
@@ -466,7 +478,9 @@
         "Low": "낮음",
         "Standard": "표준",
         "High": "높음",
-        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "낮음은 차량 이력과 계산 캐시를 적게 보관합니다. 높음은 대규모 차량 운용을 위해 더 많은 이력을 보관합니다. 대부분의 저장 게임에는 표준이 적합합니다. 적용하려면 다시 불러오세요."
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "낮음은 차량 이력과 계산 캐시를 적게 보관합니다. 높음은 대규모 차량 운용을 위해 더 많은 이력을 보관합니다. 대부분의 저장 게임에는 표준이 적합합니다. 적용하려면 다시 불러오세요.",
+        "Straight / Curve sway": "직선 / 곡선 흔들림",
+        "Sway strength on straight / curved track. 100 / 100 keeps both at full strength. Gentle curves blend between the two. Curve lean is separate.": "직선 / 곡선 구간의 흔들림 강도입니다. 100 / 100은 둘 다 최대 강도입니다. 완만한 곡선은 두 값 사이로 보간됩니다. 곡선 기울기는 별도 설정입니다."
     },
     "nl": {
         "Sway mode": "Schommelmodus",
@@ -533,7 +547,9 @@
         "Low": "Laag",
         "Standard": "Standaard",
         "High": "Hoog",
-        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Laag bewaart minder voertuighistorie en berekeningen. Hoog bewaart meer historie voor grote vloten. Standaard past bij de meeste opgeslagen spellen. Herlaad om toe te passen."
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Laag bewaart minder voertuighistorie en berekeningen. Hoog bewaart meer historie voor grote vloten. Standaard past bij de meeste opgeslagen spellen. Herlaad om toe te passen.",
+        "Straight / Curve sway": "Schommeling recht / bocht",
+        "Sway strength on straight / curved track. 100 / 100 keeps both at full strength. Gentle curves blend between the two. Curve lean is separate.": "Sterkte van de schommeling op rechte baan / in bochten. 100 / 100 houdt beide op volle sterkte. Flauwe bochten liggen ertussen. Overhellen in bochten wordt apart geregeld."
     },
     "pl": {
         "Sway mode": "Tryb kołysania",
@@ -600,7 +616,9 @@
         "Low": "Niskie",
         "Standard": "Standardowe",
         "High": "Wysokie",
-        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Niskie zachowuje mniej historii pojazdów i obliczeń. Wysokie zachowuje więcej historii dla dużych flot. Standardowe pasuje do większości zapisów. Wczytaj ponownie, aby zastosować."
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Niskie zachowuje mniej historii pojazdów i obliczeń. Wysokie zachowuje więcej historii dla dużych flot. Standardowe pasuje do większości zapisów. Wczytaj ponownie, aby zastosować.",
+        "Straight / Curve sway": "Kołysanie na prostej / łuku",
+        "Sway strength on straight / curved track. 100 / 100 keeps both at full strength. Gentle curves blend between the two. Curve lean is separate.": "Siła kołysania na prostej / łuku. 100 / 100 zachowuje pełną siłę w obu przypadkach. Łagodne łuki przyjmują wartości pośrednie. Przechył na łuku jest ustawiany osobno."
     },
     "pt_BR": {
         "Sway mode": "Modo de balanço",
@@ -667,7 +685,9 @@
         "Low": "Baixo",
         "Standard": "Padrão",
         "High": "Alto",
-        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Baixo mantém menos históricos de veículos e cálculos em cache. Alto mantém mais históricos para frotas grandes. Padrão atende à maioria dos jogos salvos. Recarregue para aplicar."
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Baixo mantém menos históricos de veículos e cálculos em cache. Alto mantém mais históricos para frotas grandes. Padrão atende à maioria dos jogos salvos. Recarregue para aplicar.",
+        "Straight / Curve sway": "Balanço em reta / curva",
+        "Sway strength on straight / curved track. 100 / 100 keeps both at full strength. Gentle curves blend between the two. Curve lean is separate.": "Intensidade do balanço em reta / curva. 100 / 100 mantém ambos na intensidade máxima. Curvas suaves interpolam entre os dois valores. A inclinação em curvas é separada."
     },
     "ru": {
         "Sway mode": "Режим качания",
@@ -734,7 +754,9 @@
         "Low": "Низкое",
         "Standard": "Стандартное",
         "High": "Высокое",
-        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Низкое сохраняет меньше истории вагонов и вычислений. Высокое сохраняет больше истории для крупных парков. Стандартное подходит большинству сохранений. Для применения загрузите игру заново."
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "Низкое сохраняет меньше истории вагонов и вычислений. Высокое сохраняет больше истории для крупных парков. Стандартное подходит большинству сохранений. Для применения загрузите игру заново.",
+        "Straight / Curve sway": "Качание на прямой / в кривой",
+        "Sway strength on straight / curved track. 100 / 100 keeps both at full strength. Gentle curves blend between the two. Curve lean is separate.": "Сила качания на прямой / в кривой. 100 / 100 сохраняет полную силу в обоих случаях. Плавные кривые дают промежуточное значение. Наклон в кривой настраивается отдельно."
     },
     "zh_CN": {
         "Sway mode": "摇摆模式",
@@ -801,7 +823,9 @@
         "Low": "低",
         "Standard": "标准",
         "High": "高",
-        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "低档保留较少的车辆历史和计算缓存。高档为大型车队保留更多历史。标准适合大多数存档。重新加载存档后生效。"
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "低档保留较少的车辆历史和计算缓存。高档为大型车队保留更多历史。标准适合大多数存档。重新加载存档后生效。",
+        "Straight / Curve sway": "直线 / 弯道摇摆",
+        "Sway strength on straight / curved track. 100 / 100 keeps both at full strength. Gentle curves blend between the two. Curve lean is separate.": "直线 / 弯道上的摇摆强度。100 / 100 表示两者均为完整强度。平缓弯道在两者之间平滑过渡。弯道倾斜单独设置。"
     },
     "zh_TW": {
         "Sway mode": "搖擺模式",
@@ -868,6 +892,8 @@
         "Low": "低",
         "Standard": "標準",
         "High": "高",
-        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "低檔保留較少的車輛歷史與計算快取。高檔為大型車隊保留更多歷史。標準適合大多數存檔。重新載入存檔後生效。"
+        "Low retains fewer carriage histories and calculation caches. High retains more history for large fleets. Standard suits most saves. Reload to apply.": "低檔保留較少的車輛歷史與計算快取。高檔為大型車隊保留更多歷史。標準適合大多數存檔。重新載入存檔後生效。",
+        "Straight / Curve sway": "直線 / 彎道搖擺",
+        "Sway strength on straight / curved track. 100 / 100 keeps both at full strength. Gentle curves blend between the two. Curve lean is separate.": "直線 / 彎道上的搖擺強度。100 / 100 表示兩者均為完整強度。平緩彎道在兩者之間平滑過渡。彎道傾斜另行設定。"
     }
 }

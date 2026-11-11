@@ -15,6 +15,7 @@ Roll reuses the game's `::/vehicle/shared/ani/tilt.ani` animation on that separa
 - Pitch balance from off to 2x
 - Heave balance from off to 2x
 - Curve lean intensity from off to 2x (1x by default)
+- Straight / curve sway from 100 / 0 to 0 / 100 (100 / 100 by default)
 - Curve sampling interval: Frame, 1 m (default), 3 m, 5 m, 10 m, or 15 m
 - Track influence from off to 150%
 - Track sampling interval: Frame, 1 m, 3 m, 5 m (default), 10 m, or 15 m
@@ -32,7 +33,9 @@ Every preset protects histories used within the last second of game time from cy
 
 Roll, pitch, and heave balance are multipliers relative to the overall sway intensity, while curve-lean intensity is independent. Their neutral 1x defaults preserve the standard motion: procedural roll reaches at most 1.2 degrees, pitch reaches at most 0.2 degrees, heave reaches at most 2 cm, and curve lean reaches at most 1.5 degrees. Setting a balance to 0x disables that procedural component independently; roll balance does not change curve lean.
 
-Setting curve lean intensity to Off disables curve lean and skips curvature queries.
+Setting curve lean intensity to Off disables curve lean. Curvature queries are also skipped when straight / curve sway is at its default 100 / 100 setting.
+
+Straight / curve sway adjusts procedural roll, pitch, and heave independently of curve lean. Each pair gives straight / curved track strength as a percentage: 100 / 100 keeps both at full strength, 100 / 0 removes sway on curves, and 0 / 100 removes it on straights. The transition follows curvature averaged over 40 m in each direction: zero is straight, curves of 1,000 m radius or tighter receive the full curve setting, and gentler curves interpolate between them. Opposing bends within the window can partly cancel. If curvature is unavailable, sway remains unchanged. This setting uses the curve sampling interval even when curve lean is off.
 
 Pitch and heave are derived from the same synthetic vertical rail profile. The profile is sampled at the vehicle's effective front and rear support points: their average produces heave and their difference produces pitch. This keeps the two movements physically coherent and phase-continuous. Effective wheelbase is inferred from repeated fake-bogie group positions where possible, then from model length as a conservative fallback.
 
@@ -165,7 +168,7 @@ Passenger stock receives a gentle automatic modifier from `metadata.transportVeh
 
 Vehicle variation scales the automatic comfort and live maintenance responses around neutral: Reduced is 50%, Normal is 100%, Enhanced is 150%, and Strong is 200%. Turning it off disables both automatic effects. Explicit `swaying_waying_rougher` and `swaying_waying_smoother` author tags remain fully applied at every setting.
 
-At Normal vehicle variation, current maintenance affects every rail vehicle at runtime, from 1x when fully maintained to 1.1x at the worst condition.
+At Normal vehicle variation, current maintenance affects every rail vehicle at runtime, from 0.95x when fully maintained to 1.1x at the worst condition.
 
 Rolling-stock authors can add `swaying_waying_rougher` or `swaying_waying_smoother` to `metadata.transportVehicle.filterTags` in the `.mdl`. Author modifiers multiply the automatic comfort and maintenance response and are applied per carriage, so mixed consists can have different ride characteristics. Conflicting vehicle response tags are ignored and logged.
 

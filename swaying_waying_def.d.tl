@@ -160,6 +160,7 @@ global record SwayingWaying
         heaveBalance: number
         curveLeanIntensity: number
         curveSamplingDistance: number
+        curveBalance: number
         trackInfluence: number
         samplingDistance: number
         vehicleVariation: number
@@ -176,6 +177,7 @@ global record SwayingWaying
         "heaveBalance"
         "curveLeanIntensity"
         "curveSamplingDistance"
+        "curveBalance"
         "trackInfluence"
         "samplingDistance"
         "vehicleVariation"
@@ -522,6 +524,7 @@ global record SwayingWaying
         trackInfluence: number
         samplingDistance: number
         curveSamplingDistance: number
+        curveBalance: number
         vehicleVariation: number
         vehicleFactor: number
         revision: integer
@@ -560,7 +563,8 @@ global record SwayingWaying
     end
 
     record CurveResponse
-        tilt: function(Transformator.LandVehicleScriptingApi, number, boolean, CarriageState, number): number, number | nil
+        tilt: function(Transformator.LandVehicleScriptingApi, number, boolean, CarriageState, number, ?boolean): number, number | nil
+        swayFactor: function(number | nil, number): number
     end
 
     type CurvatureObserver = function(TransformatorParams, number | nil): boolean
@@ -726,6 +730,7 @@ global record SwayingWaying
         HEAVE_BALANCE_PARAM_KEY: string
         CURVE_LEAN_INTENSITY_PARAM_KEY: string
         CURVE_SAMPLING_DISTANCE_PARAM_KEY: string
+        CURVE_BALANCE_PARAM_KEY: string
         TRACK_INFLUENCE_PARAM_KEY: string
         SAMPLING_DISTANCE_PARAM_KEY: string
         VEHICLE_VARIATION_PARAM_KEY: string
