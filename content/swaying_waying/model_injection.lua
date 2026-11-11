@@ -496,8 +496,23 @@ local function addSwayNodes(
 
 	local pivot = diagnostics.pivot
 	local singlePlacementGroup = onlyGroup(targets)
+	local automaticBodyTargets = nil
 	local placementBodyTargets = nil
 	if sectionMode == "shared" then
+		local skinnedPlacements
+		automaticBodyTargets, skinnedPlacements =
+			analysis.tiltingBodyWithSkinnedPlacements(activeRoots, targets, diagnostics.indices)
+		if skinnedPlacements and automaticBodyTargets == nil then
+			reports.skipped(
+				diagnostics,
+				lods,
+				activeCount,
+				"tilting body for skinned placements could not be identified"
+			)
+			return empty
+		end
+	end
+	if sectionMode == "shared" and automaticBodyTargets == nil then
 		placementBodyTargets = placementBodyTargetsByLod(activeRoots, names, targets, diagnostics.indices)
 
 		if placementBodyTargets ~= nil then
@@ -510,8 +525,12 @@ local function addSwayNodes(
 			end
 		end
 	end
-	local automaticBodyTargets = nil
-	if sectionMode == "shared" and next(targets) ~= nil and singlePlacementGroup == nil then
+	if
+		automaticBodyTargets == nil
+		and sectionMode == "shared"
+		and next(targets) ~= nil
+		and singlePlacementGroup == nil
+	then
 		local inferredTargets = placementBodyTargets or bodyTargetsByLod(activeRoots, names, diagnostics.indices)
 		if inferredTargets ~= nil then
 			automaticBodyTargets = inferredTargets

@@ -124,6 +124,7 @@ global record SwayingWaying
         "invalid active LOD root"
         "invalid section groups"
         "body groups could not be identified"
+        "tilting body for skinned placements could not be identified"
         "no body groups wrapped"
     end
 
@@ -383,6 +384,7 @@ global record SwayingWaying
         validateSections: function(string, {ModelNode}, {ModelSection}, boolean, {ModelNode: NodeIndex}): boolean
         placementTargets: function({ModelNode}, {string: boolean}, {string: boolean}, {ModelNode: NodeIndex}): {{string: boolean}} | nil
         bodyTargets: function({ModelNode}, {string: boolean}, {ModelNode: NodeIndex}): {{string: boolean}} | nil
+        tiltingBodyWithSkinnedPlacements: function({ModelNode}, {string: boolean}, {ModelNode: NodeIndex}): {{string: boolean}} | nil, boolean
         sections: function(string, {ModelNode}, {string: boolean}, PlacementData, {ModelNode: NodeIndex}): {ModelSection} | nil
     end
 

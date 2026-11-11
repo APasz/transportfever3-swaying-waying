@@ -221,6 +221,78 @@ local function sameStringSet(left, right)
 	return true
 end
 
+local function withinSkin(node, index)
+	local parent = index.parents[node]
+	while parent ~= nil do
+		local current = parent
+		if current.skin ~= nil or current.skinMaterials ~= nil then
+			return true
+		end
+		parent = index.parents[current]
+	end
+	return false
+end
+
+local function safeTiltingBody(node, placements)
+	if node.skin ~= nil or node.skinMaterials ~= nil or placements[nodes.name(node, "")] then
+		return false
+	end
+	for _, child in ipairs(node.children or {}) do
+		if not safeTiltingBody(child, placements) then
+			return false
+		end
+	end
+	return true
+end
+
+local function tiltingBodyWithSkinnedPlacements(roots, placements, indices)
+	if #roots == 0 or next(placements) == nil then
+		return nil, false
+	end
+	local result = {}
+	for lodIndex, root in ipairs(roots) do
+		local index = indices[root]
+		for name in pairs(placements) do
+			local entries = index.names[name]
+			if entries == nil or #entries ~= 1 or not withinSkin(entries[1], index) then
+				return nil, lodIndex > 1
+			end
+		end
+		local candidate = nil
+		local hasTilt = false
+		for name, entries in pairs(index.names) do
+			for _, node in ipairs(entries) do
+				local animations = node.animations
+				if animations ~= nil and (animations).tilt ~= nil then
+					hasTilt = true
+					if
+						index.swayable[node]
+						and not index.axles[node]
+						and not withinSkin(node, index)
+						and safeTiltingBody(node, placements)
+					then
+						if name == "" or #entries ~= 1 or candidate ~= nil then
+							return nil, true
+						end
+						candidate = name
+					end
+				end
+			end
+		end
+		if not hasTilt and lodIndex == 1 then
+			return nil, false
+		end
+		if candidate == nil then
+			return nil, true
+		end
+		if lodIndex > 1 and not result[1][candidate] then
+			return nil, true
+		end
+		result[lodIndex] = { [candidate] = true }
+	end
+	return result, true
+end
+
 local function collectVisualPlacementTargets(node, placementGroups, axleNodeNames, targets, depth, index)
 	if depth > MAX_NODE_DEPTH then
 		return
@@ -352,6 +424,7 @@ local module = {
 	validateSections = validateSectionGroups,
 	placementTargets = placementBodyTargetsByLod,
 	bodyTargets = bodyTargetsByLod,
+	tiltingBodyWithSkinnedPlacements = tiltingBodyWithSkinnedPlacements,
 	sections = automaticSections,
 }
 return module

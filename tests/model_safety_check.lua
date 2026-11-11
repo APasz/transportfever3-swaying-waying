@@ -171,6 +171,83 @@ assert(
 	"empty native placement placeholders remain unchanged"
 )
 local fixture = dofile("tests/support/model_fixture.lua")
+for _, peerCount in ipairs({ 1, 2 }) do
+	local model = models.rail({ 30, 425, 2000 })
+	model.metadata.swayingWaying.skipFromLod = 2
+	model.metadata.railVehicle.config = { axles = { "wheel1", "wheel2" }, fakeBogies = {} }
+	for index, lod in ipairs(model.lods) do
+		lod.node.mesh = nil
+		lod.node.children = {
+			{ name = "body_tilt", animations = { tilt = {} }, children = { { name = "body", mesh = "body.msh" } } },
+			{
+				name = "bogie1",
+				children = { { name = "frame1", mesh = "frame.msh" }, { name = "wheel1", mesh = "wheel.msh" } },
+			},
+			{
+				name = "bogie2",
+				children = { { name = "frame2", mesh = "frame.msh" }, { name = "wheel2", mesh = "wheel.msh" } },
+			},
+		}
+		model.metadata.railVehicle.config.fakeBogies[index] = {}
+		for peer = 1, peerCount do
+			local name = "peer" .. peer
+			lod.node.children[#lod.node.children + 1] =
+				{ name = "gangway" .. peer, skin = "gangway.msh", children = { { name = name, mesh = "peer.msh" } } }
+			for _, offset in ipairs({ 0, 5 }) do
+				table.insert(
+					model.metadata.railVehicle.config.fakeBogies[index],
+					{ group = name, position = peer * 20 + offset }
+				)
+			end
+		end
+		if peerCount == 2 then
+			lod.node.children = { { name = "devers_roulis", children = lod.node.children } }
+		end
+	end
+	modifier.modify("tests::/skinned_gangways_" .. peerCount .. ".mdl", model, config)
+	for index = 1, 2 do
+		local root = model.lods[index].node
+		local body = assert(fixture.descendantNamed(root, "body_tilt"))
+		assert(fixture.descendantNamed(body, "swaying_waying_pivot_body_tilt"), "sway follows the tilting body")
+		assert(
+			not fixture.descendantNamed(fixture.descendantNamed(root, "bogie1"), "swaying_waying_pivot_bogie1"),
+			"bogies stay fixed"
+		)
+		for peer = 1, peerCount do
+			assert(
+				model.metadata.railVehicle.config.fakeBogies[index][peer * 2 - 1].group == "peer" .. peer,
+				"gangway placement stays on the peer bone"
+			)
+		end
+	end
+end
+do
+	local analysis = harness.require("apasz_swaying_waying::/swaying_waying/model_analysis.lua")
+	local body = { name = "body", animations = { tilt = {} }, children = { { mesh = "body.msh" } } }
+	local peer = { name = "peer" }
+	local root = { name = "root", children = { body, { skin = "gangway.msh", children = { peer } } } }
+	local lods = { { node = root } }
+	local placements = { peer = true }
+	local function classify()
+		return analysis.tiltingBodyWithSkinnedPlacements({ root }, placements, analysis.index(lods, {}, placements))
+	end
+	local targets, recognized = classify()
+	assert(recognized and targets[1].body, "a unique rigid tilting body is selected")
+	root.children[#root.children + 1] = { name = "other", animations = { tilt = {} }, mesh = "other.msh" }
+	targets, recognized = classify()
+	assert(recognized and targets == nil, "ambiguous tilting bodies are rejected")
+	root.children[3] = nil
+	body.children[#body.children + 1] = { skin = "flex.msh" }
+	targets, recognized = classify()
+	assert(recognized and targets == nil, "skinned body content is not reparented")
+	body.children[2] = nil
+	local otherRoot = { name = "root", children = { { name = "body", animations = { tilt = {} }, mesh = "body.msh" } } }
+	local roots = { root, otherRoot }
+	local inconsistentLods = { { node = root }, { node = otherRoot } }
+	targets, recognized =
+		analysis.tiltingBodyWithSkinnedPlacements(roots, placements, analysis.index(inconsistentLods, {}, placements))
+	assert(recognized and targets == nil, "missing peer bones in another active LOD are rejected")
+end
 for _, activeCount in ipairs({ 2, 3 }) do
 	for _, nestedBogies in ipairs({ false, true }) do
 		local tilting = models.rail({ 30, 425, 2000 })
