@@ -237,7 +237,7 @@ assertNear(
 		sharedPhaseSeed = 11,
 		sharedAxisReversed = false,
 		curveTilt = 0.75,
-		swayFactor = 1.0,
+		swayFactor = 0.95,
 		shortWeight = 0.65,
 	}, {
 		rollIntensity = 1.0,
@@ -249,7 +249,7 @@ assertNear(
 		secondaryMotionEnabled = true,
 	}),
 	0.000001,
-	"best-maintained stock uses the static vehicle response"
+	"best-maintained stock reduces sway"
 )
 local expectedHeave, expectedPitch = motion.secondaryMotion({
 	motionScale = motion.speedFactor(18.0, "DEFAULT"),
@@ -259,10 +259,10 @@ local expectedHeave, expectedPitch = motion.secondaryMotion({
 	sharedPhaseSeed = 11,
 	sharedAxisReversed = false,
 	curveTilt = 0.75,
-	swayFactor = 1.0,
+	swayFactor = 0.95,
 	shortWeight = 0.65,
 }, "DEFAULT", 10.0)
-local expectedHeaveTime, expectedPitchTime = motion.secondaryAnimationTimes(expectedHeave, expectedPitch, 1.0, {
+local expectedHeaveTime, expectedPitchTime = motion.secondaryAnimationTimes(expectedHeave, expectedPitch, 0.95, {
 	rollIntensity = 1.0,
 	pitchIntensity = 1.0,
 	heaveIntensity = 1.0,
@@ -319,7 +319,7 @@ params.transformatorConfigParams.swayingWaying.settings.pitchBalance = 0.5
 params.transformatorConfigParams.swayingWaying.settings.heaveBalance = 1.5
 refreshRuntimeSettings()
 scripts.train.updateFn({}, params, output)
-local balancedRuntimeHeave, balancedRuntimePitch = motion.secondaryAnimationTimes(expectedHeave, expectedPitch, 1.0, {
+local balancedRuntimeHeave, balancedRuntimePitch = motion.secondaryAnimationTimes(expectedHeave, expectedPitch, 0.95, {
 	rollIntensity = 1.0,
 	pitchIntensity = 0.5,
 	heaveIntensity = 1.5,
@@ -474,7 +474,7 @@ assertNear(
 		sharedPhaseSeed = 11,
 		sharedAxisReversed = false,
 		curveTilt = 0.75,
-		swayFactor = 1.0,
+		swayFactor = 0.95,
 		shortWeight = 0.65,
 	}, {
 		rollIntensity = 1.0,
@@ -498,7 +498,7 @@ assertNear(
 		sharedPhaseSeed = 11,
 		sharedAxisReversed = false,
 		curveTilt = 0.75,
-		swayFactor = 1.0,
+		swayFactor = 0.95,
 		shortWeight = 0.65,
 	}, {
 		rollIntensity = 1.0,

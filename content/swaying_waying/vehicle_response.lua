@@ -5,6 +5,7 @@ local constants = ug_require("apasz_swaying_waying::/swaying_waying/constants.lu
 local NEUTRAL_FACTOR = 1.0
 local LOWEST_COMFORT_FACTOR = 1.10
 local HIGHEST_COMFORT_FACTOR = 0.90
+local BEST_MAINTENANCE_FACTOR = 0.95
 local WORST_MAINTENANCE_FACTOR = 1.10
 local MAX_VARIATION = constants.MAX_VEHICLE_VARIATION
 
@@ -24,7 +25,7 @@ local function maintenanceFactor(value)
 		return NEUTRAL_FACTOR
 	end
 	local condition = clamp(value, 0.0, 1.0)
-	return NEUTRAL_FACTOR + (WORST_MAINTENANCE_FACTOR - NEUTRAL_FACTOR) * condition
+	return BEST_MAINTENANCE_FACTOR + (WORST_MAINTENANCE_FACTOR - BEST_MAINTENANCE_FACTOR) * condition
 end
 
 local function scaleFromNeutral(factor, variation)
